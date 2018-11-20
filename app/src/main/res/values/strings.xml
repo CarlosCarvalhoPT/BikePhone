@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">BikePhone</string>
+    <string name="title_home">Home</string>
+    <string name="title_dashboard">Dashboard</string>
+    <string name="title_notifications">Notifications</string>
+    <string name="registar">Registar</string>
+    <string name="verificar">Verificar</string>
+    <string name="init">Iniciar</string>
+    <string name="start_button">Iniciar</string>
+    <string name="pause_button">Pausar</string>
+    <string name="stop_button">Parar</string>
+    <string name="resume_button">Resumir</string>
+    <string name="duration">Duração:</string>
+    <string name="settings">Defenições</string>
+    <string name="ride_id">Nome:</string>
+
+</resources>

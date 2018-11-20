@@ -1,0 +1,104 @@
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" >
+
+        <LinearLayout
+            android:layout_marginTop="10dp"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom">
+
+            <Space
+                android:layout_width="1dp"
+                android:layout_height="1dp">
+            </Space>
+
+            <Button
+                android:id="@+id/start_button"
+                style="@android:style/Widget.Button"
+                android:layout_width="wrap_content"
+                android:layout_height="100dp"
+                android:layout_weight="1"
+                android:text="@string/start_button"/>
+
+            <Space
+                android:layout_width="1dp"
+                android:layout_height="1dp">
+            </Space>
+
+            <Button
+                android:id="@+id/pause_button"
+                style="@android:style/Widget.Button"
+                android:layout_width="wrap_content"
+                android:layout_height="100dp"
+                android:layout_weight="1"
+                android:text="@string/pause_button" />
+
+            <Space
+                android:layout_width="1dp"
+                android:layout_height="1dp">
+            </Space>
+
+            <Button
+                style="@android:style/Widget.Button"
+                android:id="@+id/stop_button"
+                android:layout_weight="1"
+                android:layout_width="wrap_content"
+                android:layout_height="100dp"
+                android:text="@string/stop_button" />
+
+            <Space
+                android:layout_width="1dp"
+                android:layout_height="1dp">
+            </Space>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_marginTop="10dp"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_gravity="bottom">
+
+            <Space
+                android:layout_width="1dp"
+                android:layout_height="1dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/duration"
+                android:textSize="40sp"
+                android:textStyle="bold" />
+
+            <Chronometer
+                android:id="@+id/chronometer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:textColor="@color/navigationBarColor"
+                android:textSize="40sp" />
+
+        </LinearLayout>
+
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/settings"
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="20dp"
+        android:text="@string/settings" />
+
+</RelativeLayout>
