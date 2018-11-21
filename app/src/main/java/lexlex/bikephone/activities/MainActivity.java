@@ -7,6 +7,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.widget.Toolbar;
 
 import java.util.ArrayList;
@@ -15,6 +16,8 @@ import java.util.List;
 import lexlex.bikephone.R;
 import lexlex.bikephone.fragments.RegistarFragment;
 import lexlex.bikephone.fragments.VerificarFragment;
+import lexlex.bikephone.helper.DatabaseHelper;
+import lexlex.bikephone.models.Sensor;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -24,22 +27,28 @@ public class MainActivity extends AppCompatActivity {
     private ViewPager viewPager;
 
 
+    DatabaseHelper db;
+
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        //toolbar = (Toolbar) findViewById(R.id.toolbar);
-        //setSupportActionBar(toolbar);
-
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        viewPager = (ViewPager) findViewById(R.id.viewpager);
+        db = new DatabaseHelper(getApplicationContext());
+        Sensor sensor1 = new Sensor("Acc X", "Accelerometer X axis", "º");
+        long res = db.createSensor (sensor1);
+        Log.d("Insert Result"," "+res);
+        db.closeDB();
+
+
+
+        viewPager = findViewById(R.id.viewpager);
         setupViewPager(viewPager);
 
-        tabLayout = (TabLayout) findViewById(R.id.tabs);
+        tabLayout = findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(viewPager);
 
 
@@ -57,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
         private final List<Fragment> mFragmentList = new ArrayList<>();
         private final List<String> mFragmentTitleList = new ArrayList<>();
 
-        public ViewPagerAdapter(FragmentManager manager) {
+        private ViewPagerAdapter(FragmentManager manager) {
             super(manager);
         }
 
@@ -71,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
             return mFragmentList.size();
         }
 
-        public void addFragment(Fragment fragment, String title) {
+        private void addFragment(Fragment fragment, String title) {
             mFragmentList.add(fragment);
             mFragmentTitleList.add(title);
         }
