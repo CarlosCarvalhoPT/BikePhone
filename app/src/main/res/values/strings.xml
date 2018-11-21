@@ -13,5 +13,9 @@
     <string name="duration">Duração:</string>
     <string name="settings">Defenições</string>
     <string name="ride_id">Nome:</string>
+    <string name="distance">Distância:</string>
+    <string name="ride_samplerate">Frequência Medição</string>
+    <string name="date">Data:</string>
+    <string name="title_activity_race_info_activitie">RaceInfoActivitie</string>
 
 </resources>

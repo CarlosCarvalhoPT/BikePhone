@@ -9,8 +9,8 @@
     </style>
 
 
-    <style name="MyMaterialTheme" parent="MyMaterialTheme.Base">
-    </style>
+    <style name="MyMaterialTheme" parent="MyMaterialTheme.Base"></style>
+
     <style name="MyMaterialTheme.Base" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="windowNoTitle">true</item>
         <item name="windowActionBar">false</item>
@@ -22,6 +22,15 @@
     <style name="RedButtonLightTheme" parent="ThemeOverlay.AppCompat.Light">
         <item name="colorAccent">@color/colorAccent</item>
     </style>
+
+    <style name="AppTheme.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
 
 </resources>

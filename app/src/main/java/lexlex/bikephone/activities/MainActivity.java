@@ -38,10 +38,10 @@ public class MainActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         db = new DatabaseHelper(getApplicationContext());
-        Sensor sensor1 = new Sensor("Acc X", "Accelerometer X axis", "º");
-        long res = db.createSensor (sensor1);
-        Log.d("Insert Result"," "+res);
-        db.closeDB();
+
+
+        //TODO - ADICIONAR MAIS MATERIAL Á BASE DE DADOS
+        populateDB();
 
 
 
@@ -52,6 +52,13 @@ public class MainActivity extends AppCompatActivity {
         tabLayout.setupWithViewPager(viewPager);
 
 
+    }
+
+    private void populateDB() {
+        Sensor sensor1 = new Sensor("Acc X", "Accelerometer X axis", "º");
+        long res = db.createSensor (sensor1);
+        Log.d("Insert Result"," "+res);
+        db.closeDB();
     }
 
 

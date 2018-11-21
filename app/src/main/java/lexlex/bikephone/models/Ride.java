@@ -2,6 +2,7 @@ package lexlex.bikephone.models;
 
 import android.arch.lifecycle.ViewModel;
 
+//TODO - ACABAR RIDE (id, mac, duração, distancia, freq amos, data)
 public class Ride extends ViewModel {
     private String id;
     private String date;

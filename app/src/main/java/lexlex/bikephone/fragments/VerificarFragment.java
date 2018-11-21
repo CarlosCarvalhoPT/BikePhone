@@ -1,5 +1,6 @@
 package lexlex.bikephone.fragments;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
@@ -12,6 +13,7 @@ import android.widget.ListView;
 import java.util.ArrayList;
 
 import lexlex.bikephone.R;
+import lexlex.bikephone.activities.RaceInfoActivity;
 import lexlex.bikephone.adapters.RideAdapter;
 import lexlex.bikephone.models.Ride;
 
@@ -37,12 +39,34 @@ public class VerificarFragment extends Fragment{
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_verificar, container, false);
 
-
         listView = view.findViewById(R.id.ride_list);
 
+        //TODO - Remover este populate e usar as medições verdadeiras
+        populateLV();
+
+
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                Ride ride= rideList.get(position);
+
+                Snackbar.make(view, ride.getId(), Snackbar.LENGTH_LONG)
+                        .setAction("No action", null).show();
+
+                Intent intent = new Intent(getActivity(), RaceInfoActivity.class);
+                intent.putExtra("message", ride.getId());
+                startActivity(intent);
+            }
+        });
+
+        return view;
+    }
+
+    private void populateLV() {
         rideList= new ArrayList<>();
 
-     rideList.add(new Ride(
+        rideList.add(new Ride(
                 "Corrida 1",
                 "12-12-2018",
                 30*60
@@ -61,19 +85,6 @@ public class VerificarFragment extends Fragment{
 
         rideAdapter= new RideAdapter(rideList,getActivity().getApplicationContext());
         listView.setAdapter(rideAdapter);
-
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
-                Ride ride= rideList.get(position);
-
-                Snackbar.make(view, ride.getId(), Snackbar.LENGTH_LONG)
-                        .setAction("No action", null).show();
-            }
-        });
-
-        return view;
     }
 
 }
