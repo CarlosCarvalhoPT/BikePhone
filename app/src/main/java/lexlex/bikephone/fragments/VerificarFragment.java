@@ -55,7 +55,7 @@ public class VerificarFragment extends Fragment{
                         .setAction("No action", null).show();
 
                 Intent intent = new Intent(getActivity(), RaceInfoActivity.class);
-                intent.putExtra("message", ride.getId());
+                intent.putExtra("ride", ride);
                 startActivity(intent);
             }
         });
@@ -68,19 +68,28 @@ public class VerificarFragment extends Fragment{
 
         rideList.add(new Ride(
                 "Corrida 1",
+                "asasasas",
                 "12-12-2018",
-                30*60
-        ));
+                30*60,
+                50000,
+                50000
+                ));
 
         rideList.add(new Ride(
                 "Corrida 2",
+                "asasasas",
                 "13-12-2018",
-                35*60
+                40*60,
+                60000,
+                50000
         ));
         rideList.add(new Ride(
                 "Corrida 3",
+                "asasasas",
                 "14-12-2018",
-                50*60
+                60*66+2114,
+                70000,
+                50000
         ));
 
         rideAdapter= new RideAdapter(rideList,getActivity().getApplicationContext());

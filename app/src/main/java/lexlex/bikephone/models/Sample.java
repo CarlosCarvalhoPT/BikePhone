@@ -1,6 +1,50 @@
 package lexlex.bikephone.models;
 
+import java.io.Serializable;
 
-//TODO - corridaID, typeID, Timestamp, value
 public class Sample {
+    private String corridaID;
+    private String typeID;
+    private long timestamp; //long time= System.currentTimeMillis();
+    private int value;
+
+    public String getCorridaID() {
+        return corridaID;
+    }
+
+    public void setCorridaID(String corridaID) {
+        this.corridaID = corridaID;
+    }
+
+    public String getTypeID() {
+        return typeID;
+    }
+
+    public void setTypeID(String typeID) {
+        this.typeID = typeID;
+    }
+
+    public long getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
+    }
+
+    public int getValue() {
+        return value;
+    }
+
+    public void setValue(int value) {
+        this.value = value;
+    }
+
+    public Sample(String corridaID, String typeID, long timestamp, int value) {
+        this.corridaID = corridaID;
+        this.typeID = typeID;
+        this.timestamp = timestamp;
+
+        this.value = value;
+    }
 }
