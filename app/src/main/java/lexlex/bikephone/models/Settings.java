@@ -1,13 +1,30 @@
 package lexlex.bikephone.models;
 
-public class Settings {
+import java.io.Serializable;
+
+public class Settings implements Serializable {
     private String mac;
     private String username;
-    //todo - frequencia de amostragem - colocar na base de dados tb
+    private int samplefreq;
 
     public Settings(String mac) {
         this.mac = mac;
         this.username = "username";
+        this.samplefreq = 100000; //100ms
+    }
+
+
+    public Settings(String mac, String username, int sample_freq) {
+        this.mac = mac;
+        this.username = username;
+        this.samplefreq = sample_freq;
+    }
+    public int getSamplefreq() {
+        return samplefreq;
+    }
+
+    public void setSamplefreq(int samplefreq) {
+        this.samplefreq = samplefreq;
     }
 
     public Settings(String mac, String username) {

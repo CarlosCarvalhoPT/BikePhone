@@ -63,8 +63,8 @@ public class RideAdapter extends ArrayAdapter<Ride> implements View.OnClickListe
             viewHolder = new ViewHolder();
             LayoutInflater inflater = LayoutInflater.from(getContext());
             convertView = inflater.inflate(R.layout.ride_entry, parent, false);
-            viewHolder.rideID = (TextView) convertView.findViewById(R.id.ride_id);
-            viewHolder.rideDate = (TextView) convertView.findViewById(R.id.ride_duration);
+            viewHolder.rideID = convertView.findViewById(R.id.ride_id);
+            viewHolder.rideDate = convertView.findViewById(R.id.ride_duration);
             result=convertView;
             convertView.setTag(viewHolder);
         } else {

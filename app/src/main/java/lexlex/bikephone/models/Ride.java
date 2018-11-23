@@ -10,17 +10,30 @@ public class Ride extends ViewModel implements Serializable {
     private String date;
     private int duration;
     private int distance;
+    private String position;
     private int sample_freq;
 
-/*
-    public Ride(String id, String date, long duration) {
+    public Ride(String id, String mac, String date, int duration, int distance,String position, int sample_freq) {
         this.id = id;
+        this.mac = mac;
         this.date = date;
         this.duration = duration;
+        this.distance = distance;
+        this.position = position;
+        this.sample_freq = sample_freq;
     }
-*/
+
     public String getMac() {
         return mac;
+    }
+
+    //TODO - Adicionar posição aos campos mostrados ao utilizador: no xml e na activitie.
+    public String getPosition() {
+        return position;
+    }
+
+    public void setPosition(String position) {
+        this.position = position;
     }
 
     public void setMac(String mac) {
@@ -40,15 +53,6 @@ public class Ride extends ViewModel implements Serializable {
     }
 
     public void setSample_freq(int sample_freq) {
-        this.sample_freq = sample_freq;
-    }
-
-    public Ride(String id, String mac, String date, int duration, int distance, int sample_freq) {
-        this.id = id;
-        this.mac = mac;
-        this.date = date;
-        this.duration = duration;
-        this.distance = distance;
         this.sample_freq = sample_freq;
     }
 

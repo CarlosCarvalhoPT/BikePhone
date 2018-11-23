@@ -72,6 +72,7 @@ public class VerificarFragment extends Fragment{
                 "12-12-2018",
                 30*60,
                 50000,
+                "braço",
                 50000
                 ));
 
@@ -81,6 +82,7 @@ public class VerificarFragment extends Fragment{
                 "13-12-2018",
                 40*60,
                 60000,
+                "braço",
                 50000
         ));
         rideList.add(new Ride(
@@ -89,6 +91,7 @@ public class VerificarFragment extends Fragment{
                 "14-12-2018",
                 60*66+2114,
                 70000,
+                "braço",
                 50000
         ));
 

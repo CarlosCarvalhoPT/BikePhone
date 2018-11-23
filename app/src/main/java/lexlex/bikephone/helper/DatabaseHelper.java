@@ -2,12 +2,13 @@ package lexlex.bikephone.helper;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 import lexlex.bikephone.models.Sensor;
-
+import lexlex.bikephone.models.Settings;
 
 
 //TODO - Acabar a database - Colocar as querries de inserir, remover e verificar
@@ -32,6 +33,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     // SETTINGS Table - column names
     private static final String KEY_SETTINGS_MAC = "config_mac"; //chave primária
     private static final String KEY_SETTINGS_USERNAME = "config_username";
+    private static final String KEY_SETTINGS_SAMPLEFREQ = "config_samplefreq";
 
     // SENSORS Table - column names
     private static final String KEY_SENSOR_TYPE = "sensor_type";
@@ -55,7 +57,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String CREATE_TABLE_SETTINGS =
             "CREATE TABLE " + TABLE_SETTINGS + "("
                     + KEY_SETTINGS_MAC + " TEXT PRIMARY KEY,"
-                    + KEY_SETTINGS_USERNAME + " TEXT"
+                    + KEY_SETTINGS_USERNAME + " TEXT,"
+                    + KEY_SETTINGS_SAMPLEFREQ + " INTEGER"
                     + ")";
 
     private static final String CREATE_TABLE_SENSOR =
@@ -137,6 +140,54 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(KEY_SENSOR_UNIT, sensor1.getUnit());
 
         return db.insert(TABLE_SENSOR, null, values);
+    }
+
+
+    /***** SETTINGS *******/
+    public long createSettings(Settings settings){
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(KEY_SETTINGS_MAC, settings.getMac());
+        values.put(KEY_SETTINGS_USERNAME, settings.getUsername());
+        values.put(KEY_SETTINGS_SAMPLEFREQ, settings.getSamplefreq());
+
+        return db.insert(TABLE_SETTINGS, null, values);
+    }
+
+    public Settings getSettings() {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String selectQuery = "SELECT  * FROM " + TABLE_SETTINGS;
+
+        Log.e(LOG, selectQuery);
+
+        Cursor c = db.rawQuery(selectQuery, null);
+        Settings settings = null;
+        if(c.getCount() > 0){
+            c.moveToFirst();
+            settings = new Settings(
+                    c.getString(c.getColumnIndex(KEY_SETTINGS_MAC)),
+                    c.getString(c.getColumnIndex(KEY_SETTINGS_USERNAME)),
+                    c.getInt(c.getColumnIndex(KEY_SETTINGS_SAMPLEFREQ))
+            );
+            return settings;
+        }
+
+        return settings;
+
+    }
+
+    public long updateSettings(Settings settings){
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(KEY_SETTINGS_USERNAME, settings.getUsername());
+        values.put(KEY_SETTINGS_SAMPLEFREQ, settings.getSamplefreq());
+
+        return db.update(TABLE_SETTINGS, values, KEY_SETTINGS_MAC + " = ?",
+                new String[] { String.valueOf(settings.getMac()) });
+
     }
 
 

@@ -1,9 +1,9 @@
 package lexlex.bikephone.fragments;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.SystemClock;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -15,6 +15,12 @@ import android.widget.Chronometer;
 import android.widget.Toast;
 
 import lexlex.bikephone.R;
+import lexlex.bikephone.activities.SettingsActivity;
+import lexlex.bikephone.helper.DatabaseHelper;
+import lexlex.bikephone.models.Settings;
+
+import static android.app.Activity.RESULT_CANCELED;
+import static android.app.Activity.RESULT_OK;
 
 
 public class RegistarFragment extends Fragment{
@@ -24,6 +30,8 @@ public class RegistarFragment extends Fragment{
     private Button settings;
     private Chronometer chronometer;
     long timeWhenStopped;
+    private Settings sett;
+    private DatabaseHelper db;
 
     public RegistarFragment() {
         // Required empty public constructor
@@ -51,10 +59,57 @@ public class RegistarFragment extends Fragment{
         settings = view.findViewById(R.id.settings);
         chronometer = view.findViewById(R.id.chronometer);
 
+
+        initSettings();
+
         initButtons();
 
         return view;
     }
+
+    private void initSettings() {
+        sett = new Settings("daaaa");
+        //ir à base de dados buscar as configurações
+        db = new DatabaseHelper(getContext());
+        Settings res = db.getSettings();
+        if(res!=null){
+            sett = new Settings(
+                    res.getMac(),
+                    res.getUsername(),
+                    res.getSamplefreq()
+            );
+        }
+        else{
+            /*
+            //TODO - pegar mac do telemóvel
+            String android_id = android.provider.Settings.Secure.getString(getContext().getContentResolver(),
+                    android.provider.Settings.Secure.ANDROID_ID);
+            sett = new Settings(android_id);
+            */
+            sett = new Settings("macTelemóvelA");
+
+            db.createSettings(sett);
+        }
+        db.closeDB();
+
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == 1) {
+            if(resultCode == RESULT_OK){
+                sett = (Settings) data.getSerializableExtra("settings");
+                db = new DatabaseHelper(getContext());
+                db.updateSettings(sett);
+                db.closeDB();
+             }
+
+            if (resultCode == RESULT_CANCELED) {
+                // do something if there is no result
+            }
+        }
+    }
+
 
     void initButtons() {
         pause.setEnabled(false);
@@ -126,8 +181,14 @@ public class RegistarFragment extends Fragment{
         settings.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
+                Intent intent = new Intent(getActivity(), SettingsActivity.class);
+                intent.putExtra("settings", sett);
+                startActivityForResult(intent,1);
+                /*
                 Snackbar.make(view, "Here's a Snackbar", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
+                */
             }
         });
 

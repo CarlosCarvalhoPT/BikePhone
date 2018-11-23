@@ -41,7 +41,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         //TODO - ADICIONAR MAIS MATERIAL Á BASE DE DADOS
-        populateDB();
+        //populateDB();
 
 
 

@@ -18,6 +18,19 @@
     <string name="date">Data: </string>
     <string name="title_activity_race_info_activity">RaceInfoActivity</string>
     <string name="distanceunits">m</string>
+    <string name="title_activity_configs">ConfigsActivity</string>
+    <string name="config_mac">Mac:</string>
+    <string name="username">Utilizador:</string>
+    <string name="config_samplefreq">Precisão:</string>
+    <string name="confirm">Confirmar</string>
+    <string name="save">Guardar</string>
+    <string name="cancel">Cancelar</string>
 
+
+    <string-array name="freq_precision">
+        <item>Baixa</item>
+        <item>Normal</item>
+        <item>Alta</item>
+    </string-array>
 
 </resources>
