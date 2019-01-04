@@ -14,9 +14,14 @@ import android.widget.Button;
 import android.widget.Chronometer;
 import android.widget.Toast;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import lexlex.bikephone.R;
 import lexlex.bikephone.activities.SettingsActivity;
 import lexlex.bikephone.helper.DatabaseHelper;
+import lexlex.bikephone.helper.SensorHelper;
 import lexlex.bikephone.models.Settings;
 
 import static android.app.Activity.RESULT_CANCELED;
@@ -32,6 +37,7 @@ public class RegistarFragment extends Fragment{
     long timeWhenStopped;
     private Settings sett;
     private DatabaseHelper db;
+    SensorHelper sh;
 
     public RegistarFragment() {
         // Required empty public constructor
@@ -114,7 +120,12 @@ public class RegistarFragment extends Fragment{
     void initButtons() {
         pause.setEnabled(false);
         stop.setEnabled(false);
+        //TODO - alterar funcionamento dos butões
+        //POR LONG PRESS PARA PARAR/RETOMAR OU PARAR
+        //POR A SMALL PRESS A APARECER TOAST
 
+        //POR A PERGUNTAR AO PARAR A CORRIDA SE QUER GUARDAR OU NÃO!
+        //E FAZER A LOGICA ASSOCIADA A ISSO!
         //TODO - Recolher valores dos sensores
 
         start.setOnClickListener(new View.OnClickListener() {
@@ -125,6 +136,11 @@ public class RegistarFragment extends Fragment{
                 long systemCurrTime = SystemClock.elapsedRealtime();
                 chronometer.setBase(systemCurrTime);
                 chronometer.start();
+
+                //Iniciar guardar valores
+                DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+                String id = dateFormat.format(new Date());
+                sh = new SensorHelper(getActivity(), id, sett.getSamplefreq(), db);
 
                 showToast(v, getResources().getString(R.string.start_button));
                 start.setEnabled(false);
@@ -138,19 +154,19 @@ public class RegistarFragment extends Fragment{
             @Override
             public void onClick(View v) {
                 if(stop.isEnabled()){ //É para resumir corrida
+                    sh.resume();
                     //cronómetro
                     chronometer.setBase(SystemClock.elapsedRealtime() + timeWhenStopped);
                     chronometer.start();
-
 
                     showToast(v, getResources().getString(R.string.pause_button));
                     pause.setText(getResources().getString(R.string.pause_button));
                     stop.setEnabled(false);
                 }else { //é para pausar a corrida
+                    sh.stop();
                     //cronómetro
                     timeWhenStopped = chronometer.getBase() - SystemClock.elapsedRealtime();
                     chronometer.stop();
-
 
                     showToast(v, getResources().getString(R.string.resume_button));
                     pause.setText(getResources().getString(R.string.resume_button));
@@ -163,6 +179,8 @@ public class RegistarFragment extends Fragment{
         stop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                sh.stop();
+
                 //cronómetro
                 long systemCurrTime = SystemClock.elapsedRealtime();
                 chronometer.setBase(systemCurrTime);
@@ -194,32 +212,6 @@ public class RegistarFragment extends Fragment{
 
     }
 
-    /* This listener will reset this chronometer every 10 seconds.
-       So every 10 seconds, the chronometer will start count from 00:00.
-       If do not add this listener, the chronometer will count forever.
-       You can comment below method to see the effect.
-
-       chronometer.setOnChronometerTickListener(new Chronometer.OnChronometerTickListener() {
-        @Override
-        public void onChronometerTick(Chronometer chronometer) {
-            long systemCurrTime = SystemClock.elapsedRealtime();
-            long chronometerBaseTime = chronometer.getBase();
-            long deltaTime = systemCurrTime - chronometerBaseTime;
-
-            if(deltaTime > 10000)
-            {
-                chronometer.setBase(systemCurrTime);
-            }
-        }
-    });
-
-
-
-    public boolean registerListener (SensorEventListener listener,
-                Sensor sensor,
-                int samplingPeriodUs)
-
-    */
 
     public void showToast(View v, String e){
         Context context = v.getContext();

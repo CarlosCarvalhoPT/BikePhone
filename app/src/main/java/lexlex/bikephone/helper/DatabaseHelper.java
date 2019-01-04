@@ -89,7 +89,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     + KEY_RIDE_ID + " TEXT,"
                     + KEY_SENSOR_TYPE + " TEXT,"
                     + KEY_SAMPLE_TIME + " INTEGER,"
-                    + KEY_SAMPLE_VALUE + " INTEGER,"
+                    + KEY_SAMPLE_VALUE + " REAL,"
                     + " PRIMARY KEY (" + KEY_RIDE_ID + ", " + KEY_SENSOR_TYPE + ", " + KEY_SAMPLE_TIME + "), "
                     + " FOREIGN KEY (" + KEY_RIDE_ID + ") REFERENCES " + TABLE_RIDE + "(" + KEY_RIDE_ID + ") ON DELETE CASCADE ON UPDATE CASCADE,"
                     + " FOREIGN KEY (" + KEY_SENSOR_TYPE + ") REFERENCES " + TABLE_SENSOR + "(" + KEY_SENSOR_TYPE + ")ON DELETE CASCADE ON UPDATE CASCADE"
@@ -266,7 +266,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     /*****  SAMPLES *******/
     //TODO - TESTAR
-    public long addSample(String rideID, Sample sample) {
+    public long createSample(/*String rideID,*/ Sample sample) {
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
@@ -275,7 +275,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(KEY_SAMPLE_TIME, sample.getTimestamp());
         values.put(KEY_SAMPLE_VALUE, sample.getValue());
 
-        return db.insert(TABLE_RIDE, null, values);
+        return db.insert(TABLE_SAMPLE, null, values);
 
     }
 

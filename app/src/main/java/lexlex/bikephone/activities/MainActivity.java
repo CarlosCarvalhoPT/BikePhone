@@ -10,14 +10,20 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.Toolbar;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import lexlex.bikephone.R;
 import lexlex.bikephone.fragments.RegistarFragment;
 import lexlex.bikephone.fragments.VerificarFragment;
 import lexlex.bikephone.helper.DatabaseHelper;
+import lexlex.bikephone.models.Ride;
+import lexlex.bikephone.models.Sample;
 import lexlex.bikephone.models.Sensor;
+import lexlex.bikephone.models.Settings;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -41,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         //TODO - ADICIONAR MAIS MATERIAL Á BASE DE DADOS
-        //populateDB();
+        populateDB();
 
 
 
@@ -55,9 +61,34 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void populateDB() {
-        Sensor sensor1 = new Sensor("Acc X", "Accelerometer X axis", "º");
+        Sensor sensor1 = new Sensor("AccX", "Accelerometer X axis", "º");
         long res = db.createSensor (sensor1);
-        Log.d("Insert Result"," "+res);
+
+        sensor1 = new Sensor("AccY", "Accelerometer Y axis", "º");
+        db.createSensor (sensor1);
+
+        sensor1 = new Sensor("AccZ", "Accelerometer Z axis", "º");
+        db.createSensor (sensor1);
+
+        Settings settings1 = new Settings("bike", "carlos", 50000);
+        res = db.createSettings(settings1);
+        Log.d("Insert Settings", " "+ res);
+
+
+        //Ride
+        DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+        String date = dateFormat.format(new Date());
+        Ride ride1 = new Ride("ride1", "bike", date, 10*60, 1200, "posicaoinicial", 50000);
+        res = db.createRide(ride1);
+        Log.d("Insert Ride", " "+ res);
+
+
+        //Sample
+        Long tsLong = System.currentTimeMillis()/1000;
+        Sample sample1 = new Sample("ride1","AccX", tsLong, (long) 12.1);
+        res = db.createSample(sample1);
+        Log.d("Insert Sample", " "+ res);
+
         db.closeDB();
     }
 
