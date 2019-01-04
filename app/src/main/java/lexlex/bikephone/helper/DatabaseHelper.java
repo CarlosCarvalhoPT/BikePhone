@@ -162,9 +162,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public Settings getSettings() {
         SQLiteDatabase db = this.getReadableDatabase();
-
         String selectQuery = "SELECT  * FROM " + TABLE_SETTINGS;
-
         Log.e(LOG, selectQuery);
 
         Cursor c = db.rawQuery(selectQuery, null);
@@ -178,7 +176,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             );
             return settings;
         }
-
         return settings;
 
     }
@@ -192,7 +189,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         return db.update(TABLE_SETTINGS, values, KEY_SETTINGS_MAC + " = ?",
                 new String[]{String.valueOf(settings.getMac())});
-
     }
 
 
@@ -211,7 +207,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         return db.insert(TABLE_RIDE, null, values);
     }
-
 
     public long updateRide(String rideID, Ride ride) {
         SQLiteDatabase db = this.getWritableDatabase();
@@ -234,7 +229,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     //TODO
     public Ride getRide(String rideID) {
-
         return null;
     }
 
@@ -252,20 +246,20 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         if (c.getCount() > 0) {
             do {
-            c.moveToFirst();
-            Ride ride= new Ride(
-                    c.getString(c.getColumnIndex( KEY_RIDE_ID)),
-                    c.getString(c.getColumnIndex( KEY_SETTINGS_MAC)),
-                    c.getString(c.getColumnIndex(KEY_RIDE_TIMESTAMP)),
-                    c.getInt(c.getColumnIndex(KEY_RIDE_DURATION)),
-                    c.getInt(c.getColumnIndex(KEY_RIDE_DISTANCE)),
-                    null,
-                    c.getInt(c.getColumnIndex(KEY_RIDE_SAMPLERATE))
-            );
+                c.moveToFirst();
+                Ride ride = new Ride(
+                        c.getString(c.getColumnIndex(KEY_RIDE_ID)),
+                        c.getString(c.getColumnIndex(KEY_SETTINGS_MAC)),
+                        c.getString(c.getColumnIndex(KEY_RIDE_TIMESTAMP)),
+                        c.getInt(c.getColumnIndex(KEY_RIDE_DURATION)),
+                        c.getInt(c.getColumnIndex(KEY_RIDE_DISTANCE)),
+                        null,
+                        c.getInt(c.getColumnIndex(KEY_RIDE_SAMPLERATE))
+                );
 
-            rides.add(ride);
+                rides.add(ride);
             } while (c.moveToNext());
-         }
+        }
         return rides;
     }
 
@@ -299,23 +293,18 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 + " WHERE " + KEY_RIDE_ID + " = '" + rideID + "'";
 
         Log.e(LOG, selectQuery);
-
         Cursor c = db.rawQuery(selectQuery, null);
-        Settings settings = null;
 
         if (c.getCount() > 0) {
             do {
-
-            c.moveToFirst();
-
-            //todo-verificar construtor
-            Sample sample = new Sample(
-                    c.getString(c.getColumnIndex(KEY_RIDE_ID)),
-                    c.getString(c.getColumnIndex(KEY_SENSOR_TYPE)),
-                    c.getLong(c.getColumnIndex(KEY_SAMPLE_TIME)),
-                    c.getLong(c.getColumnIndex(KEY_SAMPLE_VALUE))
-            );
-            samples.add(sample);
+                c.moveToFirst();
+                Sample sample = new Sample(
+                        c.getString(c.getColumnIndex(KEY_RIDE_ID)),
+                        c.getString(c.getColumnIndex(KEY_SENSOR_TYPE)),
+                        c.getLong(c.getColumnIndex(KEY_SAMPLE_TIME)),
+                        c.getLong(c.getColumnIndex(KEY_SAMPLE_VALUE))
+                );
+                samples.add(sample);
 
             } while (c.moveToNext());
         }
