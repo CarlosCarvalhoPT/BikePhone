@@ -6,7 +6,7 @@ public class Sample {
     private String corridaID;
     private String typeID;
     private long timestamp; //long time= System.currentTimeMillis();
-    private int value;
+    private long value;
 
     public String getCorridaID() {
         return corridaID;
@@ -32,7 +32,7 @@ public class Sample {
         this.timestamp = timestamp;
     }
 
-    public int getValue() {
+    public long getValue() {
         return value;
     }
 
@@ -40,11 +40,10 @@ public class Sample {
         this.value = value;
     }
 
-    public Sample(String corridaID, String typeID, long timestamp, int value) {
+    public Sample(String corridaID, String typeID, long timestamp, long value) {
         this.corridaID = corridaID;
         this.typeID = typeID;
         this.timestamp = timestamp;
-
         this.value = value;
     }
 }
