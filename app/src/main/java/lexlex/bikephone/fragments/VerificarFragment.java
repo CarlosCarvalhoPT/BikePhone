@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import lexlex.bikephone.R;
 import lexlex.bikephone.activities.RaceInfoActivity;
 import lexlex.bikephone.adapters.RideAdapter;
+import lexlex.bikephone.helper.DatabaseHelper;
 import lexlex.bikephone.models.Ride;
 
 
@@ -23,15 +24,19 @@ public class VerificarFragment extends Fragment{
     ListView listView;
     private static RideAdapter rideAdapter;
 
+    DatabaseHelper db;
+
 
     public VerificarFragment() {
         // Required empty public constructor
     }
 
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
     }
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -39,11 +44,10 @@ public class VerificarFragment extends Fragment{
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_verificar, container, false);
 
+        this.db = (DatabaseHelper) this.getArguments().getSerializable("db");
         listView = view.findViewById(R.id.ride_list);
 
-        //TODO - Remover este populate e usar as medições verdadeiras
         populateLV();
-
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -51,7 +55,7 @@ public class VerificarFragment extends Fragment{
 
                 Ride ride= rideList.get(position);
 
-                Snackbar.make(view, ride.getId(), Snackbar.LENGTH_LONG)
+                Snackbar.make(view, ride.getName(), Snackbar.LENGTH_LONG)
                         .setAction("No action", null).show();
 
                 Intent intent = new Intent(getActivity(), RaceInfoActivity.class);
@@ -66,38 +70,16 @@ public class VerificarFragment extends Fragment{
     private void populateLV() {
         rideList= new ArrayList<>();
 
-        rideList.add(new Ride(
-                "Corrida 1",
-                "asasasas",
-                "12-12-2018",
-                30*60,
-                50000,
-                "braço",
-                50000
-                ));
-
-        rideList.add(new Ride(
-                "Corrida 2",
-                "asasasas",
-                "13-12-2018",
-                40*60,
-                60000,
-                "braço",
-                50000
-        ));
-        rideList.add(new Ride(
-                "Corrida 3",
-                "asasasas",
-                "14-12-2018",
-                60*66+2114,
-                70000,
-                "braço",
-                50000
-        ));
+        rideList = db.getAllRides();
 
         rideAdapter= new RideAdapter(rideList,getActivity().getApplicationContext());
         listView.setAdapter(rideAdapter);
+
     }
 
+    public void addRide(Ride ride) {
+        rideList.add(ride);
+        rideAdapter.notifyDataSetChanged();
+    }
 }
 

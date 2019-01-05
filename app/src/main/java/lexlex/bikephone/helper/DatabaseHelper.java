@@ -7,6 +7,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 import lexlex.bikephone.models.Ride;
@@ -16,7 +17,7 @@ import lexlex.bikephone.models.Settings;
 
 
 //TODO - Acabar a database - Colocar as querries de inserir, remover e verificar
-public class DatabaseHelper extends SQLiteOpenHelper {
+public class DatabaseHelper extends SQLiteOpenHelper implements Serializable {
 
     // Logcat tag
     private static final String LOG = DatabaseHelper.class.getName();
@@ -46,6 +47,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     // RIDES Table - column names
     private static final String KEY_RIDE_ID = "ride_id"; //chave primária
+    private static final String KEY_RIDE_NAME = "ride_name";
     private static final String KEY_RIDE_DURATION = "ride_duration";
     private static final String KEY_RIDE_DISTANCE = "ride_distance";
     private static final String KEY_RIDE_SAMPLERATE = "ride_samplerate";
@@ -75,23 +77,24 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String CREATE_TABLE_RIDE =
             "CREATE TABLE " + TABLE_RIDE + "("
-                    + KEY_RIDE_ID + " TEXT PRIMARY KEY,"
-                    + KEY_SETTINGS_MAC + " TEXT,"
+                    + KEY_RIDE_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                    + KEY_RIDE_NAME + " TEXT,"
+                    //+ KEY_SETTINGS_MAC + " TEXT,"
                     + KEY_RIDE_DURATION + " INTEGER,"
                     + KEY_RIDE_DISTANCE + " INTEGER,"
                     + KEY_RIDE_SAMPLERATE + " INTEGER,"
-                    + KEY_RIDE_TIMESTAMP + " NUMERIC,"
-                    + " FOREIGN KEY (" + KEY_SETTINGS_MAC + ") REFERENCES " + TABLE_SETTINGS + "(" + KEY_SETTINGS_MAC + ") ON UPDATE CASCADE"
+                    + KEY_RIDE_TIMESTAMP + " NUMERIC"
+                    //+ " FOREIGN KEY (" + KEY_SETTINGS_MAC + ") REFERENCES " + TABLE_SETTINGS + "(" + KEY_SETTINGS_MAC + ") ON UPDATE CASCADE"
                     + ")";
 
     private static final String CREATE_TABLE_SAMPLE =
             "CREATE TABLE " + TABLE_SAMPLE + "("
-                    + KEY_RIDE_ID + " TEXT,"
+                    + KEY_RIDE_ID + " INTEGER,"
                     + KEY_SENSOR_TYPE + " TEXT,"
                     + KEY_SAMPLE_TIME + " INTEGER,"
                     + KEY_SAMPLE_VALUE + " REAL,"
                     + " PRIMARY KEY (" + KEY_RIDE_ID + ", " + KEY_SENSOR_TYPE + ", " + KEY_SAMPLE_TIME + "), "
-                    + " FOREIGN KEY (" + KEY_RIDE_ID + ") REFERENCES " + TABLE_RIDE + "(" + KEY_RIDE_ID + ") ON DELETE CASCADE ON UPDATE CASCADE,"
+                    + " FOREIGN KEY (" + KEY_RIDE_ID + ") REFERENCES " + TABLE_RIDE + "(" + KEY_RIDE_NAME + ") ON DELETE CASCADE ON UPDATE CASCADE,"
                     + " FOREIGN KEY (" + KEY_SENSOR_TYPE + ") REFERENCES " + TABLE_SENSOR + "(" + KEY_SENSOR_TYPE + ")ON DELETE CASCADE ON UPDATE CASCADE"
                     + ")";
 
@@ -143,8 +146,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(KEY_SENSOR_TYPE, sensor1.getId());
         values.put(KEY_SENSOR_DESCRIPTION, sensor1.getDescription());
         values.put(KEY_SENSOR_UNIT, sensor1.getUnit());
+        try {
+            return db.insert(TABLE_SENSOR, null, values);
+        } catch (Exception e) {
+            return 0;
+        }
 
-        return db.insert(TABLE_SENSOR, null, values);
     }
 
 
@@ -198,8 +205,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         //no inicio: id: padrão disntance=0, duration=0
         ContentValues values = new ContentValues();
-        values.put(KEY_RIDE_ID, ride.getId());
-        values.put(KEY_SETTINGS_MAC, ride.getMac());
+
+        values.put(KEY_RIDE_NAME, ride.getName());
+        //values.put(KEY_SETTINGS_MAC, ride.getMac());
         values.put(KEY_RIDE_DISTANCE, ride.getDistance());
         values.put(KEY_RIDE_DURATION, ride.getDuration());
         values.put(KEY_RIDE_SAMPLERATE, ride.getSample_freq());
@@ -208,31 +216,45 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return db.insert(TABLE_RIDE, null, values);
     }
 
-    public long updateRide(String rideID, Ride ride) {
+    public long updateRide(int rideID, Ride ride) {
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
-        values.put(KEY_RIDE_ID, ride.getId());
+        values.put(KEY_RIDE_NAME, ride.getName());
         values.put(KEY_RIDE_DISTANCE, ride.getDistance());
         values.put(KEY_RIDE_DURATION, ride.getDuration());
 
         return db.update(TABLE_RIDE, values, KEY_RIDE_ID + " = ?",
-                new String[]{rideID});
+                new String[]{""+rideID});
 
     }
 
     public void deleteRide(String rideID) {
         SQLiteDatabase db = this.getWritableDatabase();
-        db.delete(TABLE_RIDE, KEY_RIDE_ID + " = ?",
+        db.delete(TABLE_RIDE, KEY_RIDE_NAME + " = ?",
                 new String[]{rideID});
     }
+
+    public int getLastRideID() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query = "SELECT MAX(" + KEY_RIDE_ID + ") FROM " + TABLE_RIDE;
+        Log.d("querry:", query);
+
+        Cursor cursor = db.rawQuery(query, null);
+
+        int id = 0;
+        if (cursor.moveToFirst()) {
+            return cursor.getInt(0);
+        }
+        return id;
+    }
+
 
     //TODO
     public Ride getRide(String rideID) {
         return null;
     }
 
-    //TODO
     public ArrayList<Ride> getAllRides() {
         SQLiteDatabase db = this.getReadableDatabase();
         ArrayList<Ride> rides = new ArrayList<>();
@@ -244,12 +266,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         Cursor c = db.rawQuery(selectQuery, null);
         Settings settings = null;
 
+
         if (c.getCount() > 0) {
+            c.moveToFirst();
             do {
-                c.moveToFirst();
                 Ride ride = new Ride(
-                        c.getString(c.getColumnIndex(KEY_RIDE_ID)),
-                        c.getString(c.getColumnIndex(KEY_SETTINGS_MAC)),
+                        c.getString(c.getColumnIndex(KEY_RIDE_NAME)),
+                        //c.getString(c.getColumnIndex(KEY_SETTINGS_MAC)),
                         c.getString(c.getColumnIndex(KEY_RIDE_TIMESTAMP)),
                         c.getInt(c.getColumnIndex(KEY_RIDE_DURATION)),
                         c.getInt(c.getColumnIndex(KEY_RIDE_DISTANCE)),
@@ -260,13 +283,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 rides.add(ride);
             } while (c.moveToNext());
         }
+        Log.d("size rides", rides.size() + " ");
         return rides;
     }
 
 
     /*****  SAMPLES *******/
-    //TODO - TESTAR
-    public long createSample(/*String rideID,*/ Sample sample) {
+    public long createSample(Sample sample) {
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
@@ -276,6 +299,21 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(KEY_SAMPLE_VALUE, sample.getValue());
 
         return db.insert(TABLE_SAMPLE, null, values);
+
+    }
+
+    public long createSamples(ArrayList<Sample> samples) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        long res = 0;
+        for (Sample sample : samples) {
+            ContentValues values = new ContentValues();
+            values.put(KEY_RIDE_ID, sample.getCorridaID());
+            values.put(KEY_SENSOR_TYPE, sample.getTypeID());
+            values.put(KEY_SAMPLE_TIME, sample.getTimestamp());
+            values.put(KEY_SAMPLE_VALUE, sample.getValue());
+            res += db.insert(TABLE_SAMPLE, null, values);
+        }
+        return res;
 
     }
 
@@ -290,7 +328,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         ArrayList<Sample> samples = new ArrayList<>();
 
         String selectQuery = "SELECT  * FROM " + TABLE_SAMPLE
-                + " WHERE " + KEY_RIDE_ID + " = '" + rideID + "'";
+                + " WHERE " + KEY_RIDE_NAME + " = '" + rideID + "'";
 
         Log.e(LOG, selectQuery);
         Cursor c = db.rawQuery(selectQuery, null);
@@ -299,7 +337,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             do {
                 c.moveToFirst();
                 Sample sample = new Sample(
-                        c.getString(c.getColumnIndex(KEY_RIDE_ID)),
+                        c.getInt(c.getColumnIndex(KEY_RIDE_ID)),
                         c.getString(c.getColumnIndex(KEY_SENSOR_TYPE)),
                         c.getLong(c.getColumnIndex(KEY_SAMPLE_TIME)),
                         c.getLong(c.getColumnIndex(KEY_SAMPLE_VALUE))
@@ -311,4 +349,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return samples;
 
     }
+
+
 }

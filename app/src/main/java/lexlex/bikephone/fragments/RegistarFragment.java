@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.SystemClock;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -14,14 +13,12 @@ import android.widget.Button;
 import android.widget.Chronometer;
 import android.widget.Toast;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
+import lexlex.bikephone.interfaces.RegistarFragmentListener;
 import lexlex.bikephone.R;
 import lexlex.bikephone.activities.SettingsActivity;
 import lexlex.bikephone.helper.DatabaseHelper;
 import lexlex.bikephone.helper.SensorHelper;
+import lexlex.bikephone.models.Ride;
 import lexlex.bikephone.models.Settings;
 
 import static android.app.Activity.RESULT_CANCELED;
@@ -29,6 +26,8 @@ import static android.app.Activity.RESULT_OK;
 
 
 public class RegistarFragment extends Fragment{
+    private RegistarFragmentListener registarFragmentListener;
+
     private Button start;
     private Button pause;
     private Button stop;
@@ -126,7 +125,7 @@ public class RegistarFragment extends Fragment{
 
         //POR A PERGUNTAR AO PARAR A CORRIDA SE QUER GUARDAR OU NÃO!
         //E FAZER A LOGICA ASSOCIADA A ISSO!
-        //TODO - Recolher valores dos sensores
+        //TODO - Recolher valores dos GPS
 
         start.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -138,9 +137,7 @@ public class RegistarFragment extends Fragment{
                 chronometer.start();
 
                 //Iniciar guardar valores
-                DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-                String id = dateFormat.format(new Date());
-                sh = new SensorHelper(getActivity(), id, sett.getSamplefreq(), db);
+                sh = new SensorHelper(getActivity(), sett.getSamplefreq(), db);
 
                 showToast(v, getResources().getString(R.string.start_button));
                 start.setEnabled(false);
@@ -163,7 +160,7 @@ public class RegistarFragment extends Fragment{
                     pause.setText(getResources().getString(R.string.pause_button));
                     stop.setEnabled(false);
                 }else { //é para pausar a corrida
-                    sh.stop();
+                    sh.pause();
                     //cronómetro
                     timeWhenStopped = chronometer.getBase() - SystemClock.elapsedRealtime();
                     chronometer.stop();
@@ -179,18 +176,24 @@ public class RegistarFragment extends Fragment{
         stop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                sh.stop();
+
+                int elapsedMillis = (int) (SystemClock.elapsedRealtime() - chronometer.getBase());
+                Log.d("tempo", ""+elapsedMillis);
+                sh.stop("AAA", elapsedMillis);
 
                 //cronómetro
                 long systemCurrTime = SystemClock.elapsedRealtime();
                 chronometer.setBase(systemCurrTime);
                 timeWhenStopped = 0;
 
+                sendDataBack(sh.getRide() );
+
                 showToast(v, getResources().getString(R.string.stop_button));
                 start.setEnabled(true);
                 pause.setText(getResources().getString(R.string.pause_button));
                 pause.setEnabled(false);
                 stop.setEnabled(false);
+
             }
         });
 
@@ -211,6 +214,30 @@ public class RegistarFragment extends Fragment{
         });
 
     }
+
+
+    private void sendDataBack(Ride ride) {
+        if  (registarFragmentListener != null) {
+            registarFragmentListener.sendDataBack(ride);
+        }
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        try {
+            registarFragmentListener = (RegistarFragmentListener) context;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(context.toString()+ " must implement FragmentOneListener");
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        registarFragmentListener = null;
+    }
+
 
 
     public void showToast(View v, String e){

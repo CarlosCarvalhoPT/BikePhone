@@ -39,7 +39,7 @@ public class RaceInfoActivity extends AppCompatActivity {
         Intent intent = getIntent();
         Ride ride = (Ride) intent.getSerializableExtra("ride");
         ride_id = findViewById(R.id.info_ride_id);
-        ride_id.setText(ride.getId());
+        ride_id.setText(ride.getName());
 
         ride_date = findViewById(R.id.info_ride_date);
         ride_date.setText(ride.getDate());

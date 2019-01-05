@@ -3,16 +3,16 @@ package lexlex.bikephone.models;
 import java.io.Serializable;
 
 public class Sample {
-    private String corridaID;
+    private int corridaID;
     private String typeID;
     private long timestamp; //long time= System.currentTimeMillis();
     private float value;
 
-    public String getCorridaID() {
+    public int getCorridaID() {
         return corridaID;
     }
 
-    public void setCorridaID(String corridaID) {
+    public void setCorridaID(int corridaID) {
         this.corridaID = corridaID;
     }
 
@@ -40,7 +40,7 @@ public class Sample {
         this.value = value;
     }
 
-    public Sample(String corridaID, String typeID, long timestamp, float value) {
+    public Sample(int corridaID, String typeID, long timestamp, float value) {
         this.corridaID = corridaID;
         this.typeID = typeID;
         this.timestamp = timestamp;

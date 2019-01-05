@@ -74,7 +74,7 @@ public class RideAdapter extends ArrayAdapter<Ride> implements View.OnClickListe
 
         lastPosition = position;
 
-        viewHolder.rideID.setText(dataModel.getId());
+        viewHolder.rideID.setText(dataModel.getName());
         viewHolder.rideDate.setText(dataModel.getDate());
         // Return the completed view to render on screen
         return convertView;

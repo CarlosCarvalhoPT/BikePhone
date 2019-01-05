@@ -18,6 +18,7 @@ import java.util.List;
 
 import lexlex.bikephone.R;
 import lexlex.bikephone.fragments.RegistarFragment;
+import lexlex.bikephone.interfaces.RegistarFragmentListener;
 import lexlex.bikephone.fragments.VerificarFragment;
 import lexlex.bikephone.helper.DatabaseHelper;
 import lexlex.bikephone.models.Ride;
@@ -25,16 +26,17 @@ import lexlex.bikephone.models.Sample;
 import lexlex.bikephone.models.Sensor;
 import lexlex.bikephone.models.Settings;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements RegistarFragmentListener {
 
 
     private Toolbar toolbar;
     private TabLayout tabLayout;
     private ViewPager viewPager;
+    private VerificarFragment verificarFragment;
+    private RegistarFragment registarFragment;
 
 
     DatabaseHelper db;
-
 
 
     @Override
@@ -46,9 +48,7 @@ public class MainActivity extends AppCompatActivity {
         db = new DatabaseHelper(getApplicationContext());
 
 
-        //TODO - ADICIONAR MAIS MATERIAL Á BASE DE DADOS
-        populateDB();
-
+        //populateDB();
 
 
         viewPager = findViewById(R.id.viewpager);
@@ -62,32 +62,32 @@ public class MainActivity extends AppCompatActivity {
 
     private void populateDB() {
         Sensor sensor1 = new Sensor("AccX", "Accelerometer X axis", "º");
-        long res = db.createSensor (sensor1);
+        long res = db.createSensor(sensor1);
 
         sensor1 = new Sensor("AccY", "Accelerometer Y axis", "º");
-        db.createSensor (sensor1);
+        db.createSensor(sensor1);
 
         sensor1 = new Sensor("AccZ", "Accelerometer Z axis", "º");
-        db.createSensor (sensor1);
+        db.createSensor(sensor1);
 
         Settings settings1 = new Settings("bike", "carlos", 50000);
         res = db.createSettings(settings1);
-        Log.d("Insert Settings", " "+ res);
+        Log.d("Insert Settings", " " + res);
 
 
         //Ride
         DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         String date = dateFormat.format(new Date());
-        Ride ride1 = new Ride("ride1", "bike", date, 10*60, 1200, "posicaoinicial", 50000);
+        Ride ride1 = new Ride("ride1", /*"bike",*/ date, 10 * 60, 1200, "posicaoinicial", 50000);
         res = db.createRide(ride1);
-        Log.d("Insert Ride", " "+ res);
+        Log.d("Insert Ride", " " + res);
 
 
         //Sample
-        Long tsLong = System.currentTimeMillis()/1000;
-        Sample sample1 = new Sample("ride1","AccX", tsLong, (long) 12.1);
+        Long tsLong = System.currentTimeMillis() / 1000;
+        Sample sample1 = new Sample(1, "AccX", tsLong, (long) 12.1);
         res = db.createSample(sample1);
-        Log.d("Insert Sample", " "+ res);
+        Log.d("Insert Sample", " " + res);
 
         db.closeDB();
     }
@@ -95,9 +95,21 @@ public class MainActivity extends AppCompatActivity {
 
     private void setupViewPager(ViewPager viewPager) {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
-        adapter.addFragment(new RegistarFragment(), getResources().getString(R.string.registar));
-        adapter.addFragment(new VerificarFragment(), getResources().getString(R.string.verificar));
+        this.registarFragment = new RegistarFragment();
+        adapter.addFragment(registarFragment, getResources().getString(R.string.registar));
+
+        Bundle bundle = new Bundle();
+        bundle.putSerializable("db", db);
+        this.verificarFragment = new VerificarFragment();
+        verificarFragment.setArguments(bundle);
+        adapter.addFragment(verificarFragment, getResources().getString(R.string.verificar));
+
         viewPager.setAdapter(adapter);
+    }
+
+    @Override
+    public void sendDataBack(Ride ride) {
+        verificarFragment.addRide(ride);
     }
 
     class ViewPagerAdapter extends FragmentPagerAdapter {
@@ -127,6 +139,7 @@ public class MainActivity extends AppCompatActivity {
         public CharSequence getPageTitle(int position) {
             return mFragmentTitleList.get(position);
         }
-    }
 
+
+    }
 }
