@@ -99,6 +99,7 @@ public class SettingsActivity extends AppCompatActivity implements AdapterView.O
     public void onItemSelected(AdapterView<?> parent, View view,
                                int pos, long id) {
         Log.d("selecao fre", pos+"");
+        //TODO - Por frequências mais baixas ou assim....
         switch (pos) {
             case 0:
                 frequence = 200000;
