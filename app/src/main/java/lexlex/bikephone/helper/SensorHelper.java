@@ -53,16 +53,18 @@ public class SensorHelper implements SensorEventListener {
 
     //TODO - VER SENSORES DO DISPOSITIVOS E INICIAR APENAS OS QUE TÊM!
     public void init() {
-        /*sensorManager.registerListener(SensorHelper.this, accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
+        /*
+        sensorManager.registerListener(SensorHelper.this, accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
         sensorManager.registerListener(SensorHelper.this, temp, SensorManager.SENSOR_DELAY_NORMAL);
         sensorManager.registerListener(SensorHelper.this, gyroscope, SensorManager.SENSOR_DELAY_NORMAL);
         */
+
+        //Acelerómetro
         sensorManager.registerListener(SensorHelper.this, accelerometer, freq);
         db.createSensor(new lexlex.bikephone.models.Sensor("AccX", "Accelerometer X axis", "º"));
         db.createSensor(new lexlex.bikephone.models.Sensor("AccY", "Accelerometer Y axis", "º"));
         db.createSensor(new lexlex.bikephone.models.Sensor("AccZ", "Accelerometer Z axis", "º"));
         db.createSensor(new lexlex.bikephone.models.Sensor("Temp", "Termometer", "ºC"));
-        //db.createSensor (new lexlex.bikephone.models.Sensor("AccZ", "Accelerometer Z axis", "º"));
 
         //sensorManager.registerListener(SensorHelper.this, temp, freq);
         //sensorManager.registerListener(SensorHelper.this, gyroscope, freq);

@@ -139,10 +139,30 @@ public class RegistarFragment extends Fragment{
                 //Iniciar guardar valores
                 sh = new SensorHelper(getActivity(), sett.getSamplefreq(), db);
 
-                showToast(v, getResources().getString(R.string.start_button));
+                showToast(v, getResources().getString(R.string.start));
                 start.setEnabled(false);
                 pause.setEnabled(true);
                 stop.setEnabled(false);
+            }
+        });
+
+
+        pause.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                // TODO Auto-generated method stub
+                if(!stop.isEnabled()){ //É para pausar corrida
+                    //é para pausar a corrida
+                    sh.pause();
+                    //cronómetro
+                    timeWhenStopped = chronometer.getBase() - SystemClock.elapsedRealtime();
+                    chronometer.stop();
+
+                    showToast(v, getResources().getString(R.string.pause));
+                    pause.setText(getResources().getString(R.string.resume_button));
+                    stop.setEnabled(true);
+                }
+                return true;
             }
         });
 
@@ -156,18 +176,14 @@ public class RegistarFragment extends Fragment{
                     chronometer.setBase(SystemClock.elapsedRealtime() + timeWhenStopped);
                     chronometer.start();
 
-                    showToast(v, getResources().getString(R.string.pause_button));
+                    showToast(v, getResources().getString(R.string.resume));
                     pause.setText(getResources().getString(R.string.pause_button));
                     stop.setEnabled(false);
-                }else { //é para pausar a corrida
-                    sh.pause();
-                    //cronómetro
-                    timeWhenStopped = chronometer.getBase() - SystemClock.elapsedRealtime();
-                    chronometer.stop();
 
-                    showToast(v, getResources().getString(R.string.resume_button));
-                    pause.setText(getResources().getString(R.string.resume_button));
-                    stop.setEnabled(true);
+                }else {
+                    //amostrar toast
+                    showToast(v, getResources().getString(R.string.longpress));
+
                 }
             }
         });
@@ -188,7 +204,7 @@ public class RegistarFragment extends Fragment{
 
                 sendDataBack(sh.getRide() );
 
-                showToast(v, getResources().getString(R.string.stop_button));
+                showToast(v, getResources().getString(R.string.stop));
                 start.setEnabled(true);
                 pause.setText(getResources().getString(R.string.pause_button));
                 pause.setEnabled(false);
