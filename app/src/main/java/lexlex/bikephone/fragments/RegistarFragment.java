@@ -13,6 +13,7 @@ import android.widget.Button;
 import android.widget.Chronometer;
 import android.widget.Toast;
 
+import lexlex.bikephone.interfaces.ButtonDialogListener;
 import lexlex.bikephone.interfaces.RegistarFragmentListener;
 import lexlex.bikephone.R;
 import lexlex.bikephone.activities.SettingsActivity;
@@ -25,9 +26,9 @@ import static android.app.Activity.RESULT_CANCELED;
 import static android.app.Activity.RESULT_OK;
 
 
-public class RegistarFragment extends Fragment{
-    private RegistarFragmentListener registarFragmentListener;
+public class RegistarFragment extends Fragment {
 
+    private RegistarFragmentListener registarFragmentListener;
     private Button start;
     private Button pause;
     private Button stop;
@@ -37,6 +38,8 @@ public class RegistarFragment extends Fragment{
     private Settings sett;
     private DatabaseHelper db;
     SensorHelper sh;
+
+    int elapsedMillis;
 
     public RegistarFragment() {
         // Required empty public constructor
@@ -56,14 +59,13 @@ public class RegistarFragment extends Fragment{
                              Bundle savedInstanceState) {
         Log.v("Button", "Initting Buttons");
         // Inflate the layout for this fragment
-        View view= inflater.inflate(R.layout.fragment_registar, container, false);
+        View view = inflater.inflate(R.layout.fragment_registar, container, false);
 
         start = view.findViewById(R.id.start_button);
         pause = view.findViewById(R.id.pause_button);
         stop = view.findViewById(R.id.stop_button);
         settings = view.findViewById(R.id.settings);
         chronometer = view.findViewById(R.id.chronometer);
-
 
         initSettings();
 
@@ -77,14 +79,13 @@ public class RegistarFragment extends Fragment{
         //ir à base de dados buscar as configurações
         db = new DatabaseHelper(getContext());
         Settings res = db.getSettings();
-        if(res!=null){
+        if (res != null) {
             sett = new Settings(
                     res.getMac(),
                     res.getUsername(),
                     res.getSamplefreq()
             );
-        }
-        else{
+        } else {
             /*
             //TODO - pegar mac do telemóvel
             String android_id = android.provider.Settings.Secure.getString(getContext().getContentResolver(),
@@ -92,7 +93,6 @@ public class RegistarFragment extends Fragment{
             sett = new Settings(android_id);
             */
             sett = new Settings("macTelemóvelA");
-
             db.createSettings(sett);
         }
         db.closeDB();
@@ -102,13 +102,12 @@ public class RegistarFragment extends Fragment{
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == 1) {
-            if(resultCode == RESULT_OK){
+            if (resultCode == RESULT_OK) {
                 sett = (Settings) data.getSerializableExtra("settings");
                 db = new DatabaseHelper(getContext());
                 db.updateSettings(sett);
                 db.closeDB();
-             }
-
+            }
             if (resultCode == RESULT_CANCELED) {
                 // do something if there is no result
             }
@@ -120,9 +119,6 @@ public class RegistarFragment extends Fragment{
         pause.setEnabled(false);
         stop.setEnabled(false);
         //TODO - alterar funcionamento dos butões
-        //POR LONG PRESS PARA PARAR/RETOMAR OU PARAR
-        //POR A SMALL PRESS A APARECER TOAST
-
         //POR A PERGUNTAR AO PARAR A CORRIDA SE QUER GUARDAR OU NÃO!
         //E FAZER A LOGICA ASSOCIADA A ISSO!
         //TODO - Recolher valores dos GPS
@@ -130,7 +126,6 @@ public class RegistarFragment extends Fragment{
         start.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 //cronómetro
                 long systemCurrTime = SystemClock.elapsedRealtime();
                 chronometer.setBase(systemCurrTime);
@@ -139,6 +134,7 @@ public class RegistarFragment extends Fragment{
                 //Iniciar guardar valores
                 sh = new SensorHelper(getActivity(), sett.getSamplefreq(), db);
 
+
                 showToast(v, getResources().getString(R.string.start));
                 start.setEnabled(false);
                 pause.setEnabled(true);
@@ -146,17 +142,18 @@ public class RegistarFragment extends Fragment{
             }
         });
 
-
         pause.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
                 // TODO Auto-generated method stub
-                if(!stop.isEnabled()){ //É para pausar corrida
+                if (!stop.isEnabled()) { //É para pausar corrida
                     //é para pausar a corrida
                     sh.pause();
                     //cronómetro
                     timeWhenStopped = chronometer.getBase() - SystemClock.elapsedRealtime();
                     chronometer.stop();
+                    elapsedMillis = (int) (SystemClock.elapsedRealtime() - chronometer.getBase());
+
 
                     showToast(v, getResources().getString(R.string.pause));
                     pause.setText(getResources().getString(R.string.resume_button));
@@ -170,7 +167,7 @@ public class RegistarFragment extends Fragment{
         pause.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(stop.isEnabled()){ //É para resumir corrida
+                if (stop.isEnabled()) { //É para resumir corrida
                     sh.resume();
                     //cronómetro
                     chronometer.setBase(SystemClock.elapsedRealtime() + timeWhenStopped);
@@ -179,11 +176,8 @@ public class RegistarFragment extends Fragment{
                     showToast(v, getResources().getString(R.string.resume));
                     pause.setText(getResources().getString(R.string.pause_button));
                     stop.setEnabled(false);
-
-                }else {
-                    //amostrar toast
+                } else {
                     showToast(v, getResources().getString(R.string.longpress));
-
                 }
             }
         });
@@ -191,28 +185,57 @@ public class RegistarFragment extends Fragment{
 
         stop.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
+            public void onClick(final View v) {
+                //showToast(v, getResources().getString(R.string.stop));
 
-                int elapsedMillis = (int) (SystemClock.elapsedRealtime() - chronometer.getBase());
-                Log.d("tempo", ""+elapsedMillis);
-                sh.stop("AAA", elapsedMillis);
 
-                //cronómetro
-                long systemCurrTime = SystemClock.elapsedRealtime();
-                chronometer.setBase(systemCurrTime);
-                timeWhenStopped = 0;
+                sh.setListener(new ButtonDialogListener() {
+                                   @Override
+                                   public void SelectedAValue(int value) {
+                                       switch (value) {
+                                           case 0:
+                                               //YES!
+                                               //cronómetro
 
-                sendDataBack(sh.getRide() );
+                                               Log.d("aaa","YES YES YES");
+                                               chronometer.setBase(SystemClock.elapsedRealtime());
+                                               timeWhenStopped = 0;
+                                               sendDataBack(sh.getRide());
 
-                showToast(v, getResources().getString(R.string.stop));
-                start.setEnabled(true);
-                pause.setText(getResources().getString(R.string.pause_button));
-                pause.setEnabled(false);
-                stop.setEnabled(false);
+                                               start.setEnabled(true);
+                                               pause.setText(getResources().getString(R.string.pause_button));
+                                               pause.setEnabled(false);
+                                               stop.setEnabled(false);
+                                               break;
+                                           case 1: //NO - descartar tudo
+                                               //cronómetro
+                                               Log.d("aaa","NO NO NO");
+                                               chronometer.setBase(SystemClock.elapsedRealtime());
+                                               timeWhenStopped = 0;
+                                               start.setEnabled(true);
+                                               pause.setText(getResources().getString(R.string.pause_button));
+                                               pause.setEnabled(false);
+                                               stop.setEnabled(false);
+                                               break;
+                                           case 2:
+
+                                               Log.d("aaa","CANCEL CANCEL");
+                                               break;
+                                           default:
+                                               break;
+                                       }
+                                   }
+                               }
+                );
+
+
+
+                Log.d("tempo", "" + elapsedMillis);
+                sh.stop(getActivity(), elapsedMillis);
+
 
             }
         });
-
 
 
         settings.setOnClickListener(new View.OnClickListener() {
@@ -221,7 +244,7 @@ public class RegistarFragment extends Fragment{
 
                 Intent intent = new Intent(getActivity(), SettingsActivity.class);
                 intent.putExtra("settings", sett);
-                startActivityForResult(intent,1);
+                startActivityForResult(intent, 1);
                 /*
                 Snackbar.make(view, "Here's a Snackbar", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
@@ -231,9 +254,8 @@ public class RegistarFragment extends Fragment{
 
     }
 
-
     private void sendDataBack(Ride ride) {
-        if  (registarFragmentListener != null) {
+        if (registarFragmentListener != null) {
             registarFragmentListener.sendDataBack(ride);
         }
     }
@@ -244,7 +266,7 @@ public class RegistarFragment extends Fragment{
         try {
             registarFragmentListener = (RegistarFragmentListener) context;
         } catch (ClassCastException e) {
-            throw new ClassCastException(context.toString()+ " must implement FragmentOneListener");
+            throw new ClassCastException(context.toString() + " must implement FragmentOneListener");
         }
     }
 
@@ -254,9 +276,7 @@ public class RegistarFragment extends Fragment{
         registarFragmentListener = null;
     }
 
-
-
-    public void showToast(View v, String e){
+    public void showToast(View v, String e) {
         Context context = v.getContext();
         int duration = Toast.LENGTH_SHORT;
         Toast toast = Toast.makeText(context, e, duration);
