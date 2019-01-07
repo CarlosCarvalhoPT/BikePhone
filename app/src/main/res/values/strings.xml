@@ -26,16 +26,19 @@
     <string name="save">Guardar</string>
     <string name="cancel">Cancelar</string>
     <string name="longpress">Long press to pause</string>
-    <string name="pause">Corrida Iniciada</string>
-    <string name="resume">Corrida Pausada</string>
+    <string name="pause">Corrida Pausada</string>
+    <string name="resume">Corrida Iniciada</string>
     <string name="stop">Corrida Finalizada</string>
     <string name="start">Corrida Iniciada</string>
+    <string name="title_location_permission">Permissões</string>
+    <string name="text_location_permission">Ativar Localização</string>
+    <string name="ok">Ok</string>
 
 
     <string-array name="freq_precision">
-        <item>Baixa</item>
-        <item>Normal</item>
-        <item>Alta</item>
+        <item>Baixa  (5 Hz)</item>
+        <item>Normal  (10 Hz)</item>
+        <item>Alta  (20 Hz)</item>
     </string-array>
 
 </resources>

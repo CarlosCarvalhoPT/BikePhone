@@ -118,9 +118,7 @@ public class RegistarFragment extends Fragment {
     void initButtons() {
         pause.setEnabled(false);
         stop.setEnabled(false);
-        //TODO - alterar funcionamento dos butões
-        //POR A PERGUNTAR AO PARAR A CORRIDA SE QUER GUARDAR OU NÃO!
-        //E FAZER A LOGICA ASSOCIADA A ISSO!
+
         //TODO - Recolher valores dos GPS
 
         start.setOnClickListener(new View.OnClickListener() {
@@ -145,7 +143,7 @@ public class RegistarFragment extends Fragment {
         pause.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                // TODO Auto-generated method stub
+
                 if (!stop.isEnabled()) { //É para pausar corrida
                     //é para pausar a corrida
                     sh.pause();
@@ -197,7 +195,7 @@ public class RegistarFragment extends Fragment {
                                                //YES!
                                                //cronómetro
 
-                                               Log.d("aaa","YES YES YES");
+                                               Log.d("aaa", "YES YES YES");
                                                chronometer.setBase(SystemClock.elapsedRealtime());
                                                timeWhenStopped = 0;
                                                sendDataBack(sh.getRide());
@@ -209,7 +207,7 @@ public class RegistarFragment extends Fragment {
                                                break;
                                            case 1: //NO - descartar tudo
                                                //cronómetro
-                                               Log.d("aaa","NO NO NO");
+                                               Log.d("aaa", "NO NO NO");
                                                chronometer.setBase(SystemClock.elapsedRealtime());
                                                timeWhenStopped = 0;
                                                start.setEnabled(true);
@@ -219,7 +217,7 @@ public class RegistarFragment extends Fragment {
                                                break;
                                            case 2:
 
-                                               Log.d("aaa","CANCEL CANCEL");
+                                               Log.d("aaa", "CANCEL CANCEL");
                                                break;
                                            default:
                                                break;
@@ -227,7 +225,6 @@ public class RegistarFragment extends Fragment {
                                    }
                                }
                 );
-
 
 
                 Log.d("tempo", "" + elapsedMillis);

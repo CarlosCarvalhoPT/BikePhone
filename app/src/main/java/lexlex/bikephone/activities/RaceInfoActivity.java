@@ -51,7 +51,7 @@ public class RaceInfoActivity extends AppCompatActivity {
         ride_distance.setText(String.valueOf(ride.getDistance()) + " " +getString(R.string.distanceunits) );
 
         ride_samplerate = findViewById(R.id.info_ride_samplerate);
-        ride_samplerate.setText(String.valueOf(ride.getSample_freq()/1000) + " Hz");
+        ride_samplerate.setText(String.valueOf(1000/(ride.getSample_freq()/1000)) + " Hz");
 
         //TODO - Colocar botão de apagar corrida.... editar nome (depois de fazer as querries na BD)
     }

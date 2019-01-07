@@ -16,7 +16,6 @@ import lexlex.bikephone.models.Sensor;
 import lexlex.bikephone.models.Settings;
 
 
-//TODO - Acabar a database - Colocar as querries de inserir, remover e verificar
 public class DatabaseHelper extends SQLiteOpenHelper implements Serializable {
 
     // Logcat tag
@@ -146,12 +145,8 @@ public class DatabaseHelper extends SQLiteOpenHelper implements Serializable {
         values.put(KEY_SENSOR_TYPE, sensor1.getId());
         values.put(KEY_SENSOR_DESCRIPTION, sensor1.getDescription());
         values.put(KEY_SENSOR_UNIT, sensor1.getUnit());
-        try {
-            return db.insert(TABLE_SENSOR, null, values);
-        } catch (Exception e) {
-            return 0;
-        }
 
+        return db.insert(TABLE_SENSOR, null, values);
     }
 
 
@@ -225,7 +220,7 @@ public class DatabaseHelper extends SQLiteOpenHelper implements Serializable {
         values.put(KEY_RIDE_DURATION, ride.getDuration());
 
         return db.update(TABLE_RIDE, values, KEY_RIDE_ID + " = ?",
-                new String[]{""+rideID});
+                new String[]{"" + rideID});
 
     }
 
