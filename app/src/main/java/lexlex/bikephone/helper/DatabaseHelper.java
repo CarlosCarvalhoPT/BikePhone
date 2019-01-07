@@ -13,7 +13,8 @@ import java.util.ArrayList;
 import lexlex.bikephone.models.Ride;
 import lexlex.bikephone.models.Sample;
 import lexlex.bikephone.models.Sensor;
-import lexlex.bikephone.models.Settings;
+import lexlex.bikephone.models.Setting;
+import lexlex.bikephone.models.Setting ;
 
 
 public class DatabaseHelper extends SQLiteOpenHelper implements Serializable {
@@ -151,7 +152,7 @@ public class DatabaseHelper extends SQLiteOpenHelper implements Serializable {
 
 
     /***** SETTINGS *******/
-    public long createSettings(Settings settings) {
+    public long createSettings(Setting settings) {
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
@@ -162,16 +163,16 @@ public class DatabaseHelper extends SQLiteOpenHelper implements Serializable {
         return db.insert(TABLE_SETTINGS, null, values);
     }
 
-    public Settings getSettings() {
+    public Setting  getSettings() {
         SQLiteDatabase db = this.getReadableDatabase();
         String selectQuery = "SELECT  * FROM " + TABLE_SETTINGS;
         Log.e(LOG, selectQuery);
 
         Cursor c = db.rawQuery(selectQuery, null);
-        Settings settings = null;
+        Setting  settings = null;
         if (c.getCount() > 0) {
             c.moveToFirst();
-            settings = new Settings(
+            settings = new Setting (
                     c.getString(c.getColumnIndex(KEY_SETTINGS_MAC)),
                     c.getString(c.getColumnIndex(KEY_SETTINGS_USERNAME)),
                     c.getInt(c.getColumnIndex(KEY_SETTINGS_SAMPLEFREQ))
@@ -182,7 +183,7 @@ public class DatabaseHelper extends SQLiteOpenHelper implements Serializable {
 
     }
 
-    public long updateSettings(Settings settings) {
+    public long updateSettings(Setting  settings) {
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
@@ -259,7 +260,7 @@ public class DatabaseHelper extends SQLiteOpenHelper implements Serializable {
         Log.e(LOG, selectQuery);
 
         Cursor c = db.rawQuery(selectQuery, null);
-        Settings settings = null;
+        Setting  settings = null;
 
 
         if (c.getCount() > 0) {
@@ -300,14 +301,25 @@ public class DatabaseHelper extends SQLiteOpenHelper implements Serializable {
     public long createSamples(ArrayList<Sample> samples) {
         SQLiteDatabase db = this.getWritableDatabase();
         long res = 0;
+        db.beginTransaction();
         for (Sample sample : samples) {
             ContentValues values = new ContentValues();
             values.put(KEY_RIDE_ID, sample.getCorridaID());
             values.put(KEY_SENSOR_TYPE, sample.getTypeID());
             values.put(KEY_SAMPLE_TIME, sample.getTimestamp());
             values.put(KEY_SAMPLE_VALUE, sample.getValue());
+
+            //Log.d("id",""+sample.getCorridaID());
+            //Log.d("type",""+sample.getTypeID());
+            //Log.d("time",""+sample.getTimestamp());
+            //Log.d("value",""+sample.getValue());
+
             res += db.insert(TABLE_SAMPLE, null, values);
         }
+        db.setTransactionSuccessful();
+        db.endTransaction();
+        Log.d("Acabou de introduzir", samples.size()+"");
+
         return res;
 
     }

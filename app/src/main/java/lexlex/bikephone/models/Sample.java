@@ -2,7 +2,7 @@ package lexlex.bikephone.models;
 
 import java.io.Serializable;
 
-public class Sample {
+public class Sample implements Serializable{
     private int corridaID;
     private String typeID;
     private long timestamp; //long time= System.currentTimeMillis();

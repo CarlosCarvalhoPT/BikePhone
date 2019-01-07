@@ -2,19 +2,19 @@ package lexlex.bikephone.models;
 
 import java.io.Serializable;
 
-public class Settings implements Serializable {
+public class Setting implements Serializable {
     private String mac;
     private String username;
     private int samplefreq;
 
-    public Settings(String mac) {
+    public Setting(String mac) {
         this.mac = mac;
         this.username = "username";
         this.samplefreq = 100000; //100ms
     }
 
 
-    public Settings(String mac, String username, int sample_freq) {
+    public Setting(String mac, String username, int sample_freq) {
         this.mac = mac;
         this.username = username;
         this.samplefreq = sample_freq;
@@ -27,7 +27,7 @@ public class Settings implements Serializable {
         this.samplefreq = samplefreq;
     }
 
-    public Settings(String mac, String username) {
+    public Setting(String mac, String username) {
         this.mac = mac;
         this.username = username;
     }

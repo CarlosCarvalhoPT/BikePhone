@@ -1,30 +1,27 @@
 package lexlex.bikephone.helper;
 
-import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.location.LocationListener;
 import android.location.LocationManager;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
+import android.util.TimingLogger;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.Toast;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
+import lexlex.bikephone.DatabaseService;
 import lexlex.bikephone.interfaces.ButtonDialogListener;
 import lexlex.bikephone.interfaces.myLocationListener;
 import lexlex.bikephone.models.Ride;
@@ -32,40 +29,33 @@ import lexlex.bikephone.models.Sample;
 
 
 public class SensorHelper implements SensorEventListener {
+    private Context context;
+    private DatabaseHelper db;
     private SensorManager sensorManager;
-    private Sensor temp;
     private Sensor accelerometer;
+    private Sensor temp;
     private Sensor gyroscope;
     private int freq;
     private int rideID;
     private Ride ride;
-    private DatabaseHelper db;
     private ArrayList<Sample> samples;
     private ButtonDialogListener listener;
     private LocationManager locationManager;
+    private myLocationListener locationListener;
 
+
+    @SuppressLint("MissingPermission")
     public SensorHelper(Context context, int freq, DatabaseHelper db) {
         this.freq = freq;
         this.db = db;
         this.samples = new ArrayList<>();
         this.listener = null;
+        this.context = context;
 
         locationManager = (LocationManager) context.getSystemService(context.LOCATION_SERVICE);
-        LocationListener locationListener = new myLocationListener();
-
-        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            locationManager.requestLocationUpdates(
-                    LocationManager.GPS_PROVIDER, 5000, 10, locationListener);
-
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            //return TODO;
-        }
+        locationListener = new myLocationListener();
+        //TODO -MUDAR PARA O INIT() + Por o Pause!
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, this.freq, 5, locationListener);
 
         DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         String rideName = dateFormat.format(new Date());
@@ -85,7 +75,8 @@ public class SensorHelper implements SensorEventListener {
         init();
     }
 
-    public void setListener(ButtonDialogListener listener){
+
+    public void setListener(ButtonDialogListener listener) {
         this.listener = listener;
     }
 
@@ -99,10 +90,7 @@ public class SensorHelper implements SensorEventListener {
 
         //Acelerómetro
         sensorManager.registerListener(SensorHelper.this, accelerometer, freq);
-        //db.createSensor(new lexlex.bikephone.models.Sensor("AccX", "Accelerometer X axis", "º"));
-        //db.createSensor(new lexlex.bikephone.models.Sensor("AccY", "Accelerometer Y axis", "º"));
-        //db.createSensor(new lexlex.bikephone.models.Sensor("AccZ", "Accelerometer Z axis", "º"));
-        //db.createSensor(new lexlex.bikephone.models.Sensor("Temp", "Termometer", "ºC"));
+
 
         //sensorManager.registerListener(SensorHelper.this, temp, freq);
         //sensorManager.registerListener(SensorHelper.this, gyroscope, freq);
@@ -112,11 +100,11 @@ public class SensorHelper implements SensorEventListener {
     @Override
     public void onSensorChanged(SensorEvent event) {
 
+
         Long timeStamp = System.currentTimeMillis();
 
         if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
             //Log.d("TAG", "X: " + event.values[0] + "Y: " + event.values[1] + "Z: " + event.values[2]);
-
             //X
             Sample accX = new Sample(rideID, "AccX", timeStamp, event.values[0]);
             samples.add(accX);
@@ -126,7 +114,6 @@ public class SensorHelper implements SensorEventListener {
             //Z
             Sample accZ = new Sample(rideID, "AccZ", timeStamp, event.values[2]);
             samples.add(accZ);
-
         }
         if (event.sensor.getType() == Sensor.TYPE_AMBIENT_TEMPERATURE) {
             Log.d("TAGG", "ºC: " + event.values[0]);
@@ -150,7 +137,7 @@ public class SensorHelper implements SensorEventListener {
     public boolean stop(Activity activity, int elapsedmillis) {
         pause();
 
-        showdialog( activity );
+        showdialog(activity);
 
         this.ride.setDuration(elapsedmillis / 1000);
 
@@ -175,16 +162,30 @@ public class SensorHelper implements SensorEventListener {
                     public void onClick(DialogInterface dialog, int which) {
                         Log.d("Botão", "sim");
                         ride.setName(input.getText().toString());
-
+                        ride.setDistance((int) locationListener.getDistance());
                         db.updateRide(rideID, ride);
+
+
+                        //TODO - POR A CORRER UM Background Service!
+                        //Intent i = new Intent(context, DatabaseService.class);
+                        //i.putExtra("samples", samples);
+                        //context.startService(i);
+
+
                         Thread thread = new Thread() {
                             @Override
                             public void run() {
-                                long res = db.createSamples(samples);
-                                Log.d("Guardar valores", " " + res);
-                            }
+                                long lStartTime = System.nanoTime();
+
+                                db.createSamples(samples);
+
+                                long lEndTime = System.nanoTime();
+                                long output = lEndTime - lStartTime;
+                                Log.d("time", " " + output / 1000);
+                            } //1000000000
                         };
                         thread.start();
+
 
                         listener.SelectedAValue(0);
                         dialog.cancel();
@@ -216,8 +217,6 @@ public class SensorHelper implements SensorEventListener {
     }
 
 
-
-
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
 
@@ -225,5 +224,9 @@ public class SensorHelper implements SensorEventListener {
 
     public Ride getRide() {
         return this.ride;
+    }
+
+    public String getDistance() {
+        return locationListener.getDistance() + " ";
     }
 }

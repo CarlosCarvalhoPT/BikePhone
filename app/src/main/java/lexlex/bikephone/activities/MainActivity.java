@@ -2,8 +2,13 @@ package lexlex.bikephone.activities;
 
 import android.Manifest;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.Criteria;
+import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
@@ -30,7 +35,7 @@ import lexlex.bikephone.helper.DatabaseHelper;
 import lexlex.bikephone.models.Ride;
 import lexlex.bikephone.models.Sample;
 import lexlex.bikephone.models.Sensor;
-import lexlex.bikephone.models.Settings;
+import lexlex.bikephone.models.Setting;
 
 public class MainActivity extends AppCompatActivity implements RegistarFragmentListener {
 
@@ -40,6 +45,12 @@ public class MainActivity extends AppCompatActivity implements RegistarFragmentL
     private ViewPager viewPager;
     private VerificarFragment verificarFragment;
     private RegistarFragment registarFragment;
+
+    final static int PERMISSION_ALL = 1;
+    final static String[] PERMISSIONS = {Manifest.permission.ACCESS_COARSE_LOCATION,
+            Manifest.permission.ACCESS_FINE_LOCATION};
+
+    LocationManager locationManager;
 
 
     DatabaseHelper db;
@@ -54,13 +65,22 @@ public class MainActivity extends AppCompatActivity implements RegistarFragmentL
         db = new DatabaseHelper(getApplicationContext());
 
 
+        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        if (Build.VERSION.SDK_INT >= 23 && !isPermissionGranted()) {
+            //requestPermissions(PERMISSIONS, PERMISSION_ALL);
+            checkLocationPermission();
+        } else requestLocation();
+        if (!isLocationEnabled()) {
+            showAlert(1);
+        }
+
         //populateDB();
         db.createSensor(new Sensor("AccX", "Accelerometer X axis", "º"));
         db.createSensor(new Sensor("AccY", "Accelerometer Y axis", "º"));
         db.createSensor(new Sensor("AccZ", "Accelerometer Z axis", "º"));
         db.createSensor(new Sensor("Temp", "Termometer", "ºC"));
 
-        checkLocationPermission();
+
 
         viewPager = findViewById(R.id.viewpager);
         setupViewPager(viewPager);
@@ -78,7 +98,7 @@ public class MainActivity extends AppCompatActivity implements RegistarFragmentL
                 Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
 
-           }
+        }
     }
 
     @Override
@@ -88,7 +108,7 @@ public class MainActivity extends AppCompatActivity implements RegistarFragmentL
                 Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
 
-           }
+        }
     }
 
     private void populateDB() {
@@ -101,7 +121,7 @@ public class MainActivity extends AppCompatActivity implements RegistarFragmentL
         sensor1 = new Sensor("AccZ", "Accelerometer Z axis", "º");
         db.createSensor(sensor1);
 
-        Settings settings1 = new Settings("bike", "carlos", 50000);
+        Setting settings1 = new Setting ("bike", "carlos", 50000);
         res = db.createSettings(settings1);
         Log.d("Insert Settings", " " + res);
 
@@ -232,12 +252,14 @@ public class MainActivity extends AppCompatActivity implements RegistarFragmentL
                             Manifest.permission.ACCESS_FINE_LOCATION)
                             == PackageManager.PERMISSION_GRANTED) {
 
+                        isLocationEnabled();
                         //Request location updates:
-                      //  locationManager.requestLocationUpdates(provider, 400, 1, this);
+                        //  locationManager.requestLocationUpdates(provider, 400, 1, this);
                     }
 
                 } else {
-
+                    checkLocationPermission();
+                    //requestPermissions(PERMISSIONS, PERMISSION_ALL);
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
 
@@ -247,4 +269,81 @@ public class MainActivity extends AppCompatActivity implements RegistarFragmentL
 
         }
     }
+
+
+
+    private boolean isLocationEnabled() {
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
+                locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+    }
+
+
+    private boolean isPermissionGranted() {
+        if (checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED || checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) {
+            Log.v("myLog", "Granted permission");
+            return true;
+        } else {
+            Log.v("myLog", "Permission not granted");
+            return false;
+        }
+    }
+
+
+    public void requestLocation() {
+        Criteria criteria = new Criteria();
+        criteria.setAccuracy(Criteria.ACCURACY_FINE);
+        criteria.setPowerRequirement(Criteria.POWER_HIGH);
+        String provider = locationManager.getBestProvider(criteria, true);
+    }
+
+
+    private void showAlert(final int status) {
+
+        String message, title, btnText;
+
+        if (status == 1) {
+            message = "Your location setting is set to OFF, Please enable Location to " +
+                    "on this app";
+
+            title = "enable location";
+            btnText = "Grant";
+        } else {
+            message = "Allow this app access";
+            title = "Permission...";
+            btnText = "granted";
+        }
+
+        final AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+        dialog.setCancelable(false);
+        dialog.setTitle(title);
+        dialog.setMessage(message);
+        dialog.setPositiveButton(btnText, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if (status == 1) {
+
+                    Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                    startActivity(intent);
+
+                } else {
+                    requestPermissions(PERMISSIONS, PERMISSION_ALL);
+                }
+            }
+
+        });
+
+        dialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                finish();
+            }
+        });
+
+
+        dialog.show();
+    }
+
+
 }

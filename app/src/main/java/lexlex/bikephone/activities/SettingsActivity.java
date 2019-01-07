@@ -18,7 +18,7 @@ import android.widget.TextView;
 
 import lexlex.bikephone.R;
 import lexlex.bikephone.models.Ride;
-import lexlex.bikephone.models.Settings;
+import lexlex.bikephone.models.Setting ;
 
 public class SettingsActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
     private Button save;
@@ -26,7 +26,7 @@ public class SettingsActivity extends AppCompatActivity implements AdapterView.O
     private Spinner spinner;
     private EditText username;
     private TextView mac;
-    private Settings setting;
+    private Setting  setting;
     private int frequence;
 
     @Override
@@ -37,7 +37,7 @@ public class SettingsActivity extends AppCompatActivity implements AdapterView.O
         setSupportActionBar(toolbar);
 
         Intent intent = getIntent();
-        setting = (Settings) intent.getSerializableExtra("settings");
+        setting = (Setting) intent.getSerializableExtra("settings");
 
         spinner = findViewById(R.id.config_spinner);
         username = findViewById(R.id.config_username);
@@ -61,7 +61,7 @@ public class SettingsActivity extends AppCompatActivity implements AdapterView.O
             @Override
             public void onClick(View v) {
                 Log.d("freqaaa", frequence+"");
-                Settings res = new Settings(mac.getText().toString(), username.getText().toString() ,frequence);
+                Setting  res = new Setting (mac.getText().toString(), username.getText().toString() ,frequence);
                 Intent returnIntent = new Intent();
                 returnIntent.putExtra("settings", res);
                 setResult(RESULT_OK, returnIntent);

@@ -20,7 +20,7 @@ import lexlex.bikephone.activities.SettingsActivity;
 import lexlex.bikephone.helper.DatabaseHelper;
 import lexlex.bikephone.helper.SensorHelper;
 import lexlex.bikephone.models.Ride;
-import lexlex.bikephone.models.Settings;
+import lexlex.bikephone.models.Setting;
 
 import static android.app.Activity.RESULT_CANCELED;
 import static android.app.Activity.RESULT_OK;
@@ -35,7 +35,7 @@ public class RegistarFragment extends Fragment {
     private Button settings;
     private Chronometer chronometer;
     long timeWhenStopped;
-    private Settings sett;
+    private Setting  sett;
     private DatabaseHelper db;
     SensorHelper sh;
 
@@ -75,12 +75,12 @@ public class RegistarFragment extends Fragment {
     }
 
     private void initSettings() {
-        sett = new Settings("daaaa");
+        sett = new Setting ("daaaa");
         //ir à base de dados buscar as configurações
         db = new DatabaseHelper(getContext());
-        Settings res = db.getSettings();
+        Setting res = db.getSettings();
         if (res != null) {
-            sett = new Settings(
+            sett = new Setting (
                     res.getMac(),
                     res.getUsername(),
                     res.getSamplefreq()
@@ -92,7 +92,7 @@ public class RegistarFragment extends Fragment {
                     android.provider.Settings.Secure.ANDROID_ID);
             sett = new Settings(android_id);
             */
-            sett = new Settings("macTelemóvelA");
+            sett = new Setting ("macTelemóvelA");
             db.createSettings(sett);
         }
         db.closeDB();
@@ -103,7 +103,7 @@ public class RegistarFragment extends Fragment {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == 1) {
             if (resultCode == RESULT_OK) {
-                sett = (Settings) data.getSerializableExtra("settings");
+                sett = (Setting) data.getSerializableExtra("settings");
                 db = new DatabaseHelper(getContext());
                 db.updateSettings(sett);
                 db.closeDB();
@@ -168,13 +168,15 @@ public class RegistarFragment extends Fragment {
                 if (stop.isEnabled()) { //É para resumir corrida
                     sh.resume();
                     //cronómetro
+
                     chronometer.setBase(SystemClock.elapsedRealtime() + timeWhenStopped);
                     chronometer.start();
-
                     showToast(v, getResources().getString(R.string.resume));
+
                     pause.setText(getResources().getString(R.string.pause_button));
                     stop.setEnabled(false);
                 } else {
+                    showToast(v, sh.getDistance()+" " );
                     showToast(v, getResources().getString(R.string.longpress));
                 }
             }
