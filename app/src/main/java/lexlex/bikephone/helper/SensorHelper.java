@@ -10,9 +10,11 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.location.LocationManager;
+import android.os.Handler;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.util.TimingLogger;
+import android.view.ContextThemeWrapper;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 
@@ -20,8 +22,10 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import lexlex.bikephone.DatabaseService;
+import lexlex.bikephone.R;
 import lexlex.bikephone.interfaces.ButtonDialogListener;
 import lexlex.bikephone.interfaces.myLocationListener;
 import lexlex.bikephone.models.Ride;
@@ -33,10 +37,13 @@ public class SensorHelper implements SensorEventListener {
     private DatabaseHelper db;
     private SensorManager sensorManager;
     private Sensor accelerometer;
+    private Sensor lux;
     private Sensor temp;
+    private Sensor prox;
     private Sensor gyroscope;
     private int freq;
     private int rideID;
+    private long initTime, pauseTime;
     private Ride ride;
     private ArrayList<Sample> samples;
     private ButtonDialogListener listener;
@@ -55,7 +62,6 @@ public class SensorHelper implements SensorEventListener {
         locationManager = (LocationManager) context.getSystemService(context.LOCATION_SERVICE);
         locationListener = new myLocationListener();
         //TODO -MUDAR PARA O INIT() + Por o Pause!
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, this.freq, 5, locationListener);
 
         DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         String rideName = dateFormat.format(new Date());
@@ -63,16 +69,30 @@ public class SensorHelper implements SensorEventListener {
         this.ride = new Ride(rideName, rideName, 0, 0, " ", freq);
         db.createRide(ride);
         this.rideID = db.getLastRideID();
-        Log.d("rideID", "" + rideID);
-
+        //Log.d("rideID", "" + rideID);
 
         sensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
 
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         temp = sensorManager.getDefaultSensor(Sensor.TYPE_AMBIENT_TEMPERATURE);
+        lux = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
+        //prox = sensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
         gyroscope = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
 
         init();
+
+        /*
+            // Listar sensores
+            List<Sensor> sensorList  =
+                    sensorManager.getSensorList(Sensor.TYPE_ALL);
+            StringBuilder sensorText = new StringBuilder();
+
+            for (Sensor currentSensor : sensorList ) {
+                sensorText.append(currentSensor.getName()).append(
+                        System.getProperty("line.separator"));
+            }
+            Log.d("Sensores", sensorText.toString());
+        */
     }
 
 
@@ -80,20 +100,22 @@ public class SensorHelper implements SensorEventListener {
         this.listener = listener;
     }
 
-    //TODO - VER SENSORES DO DISPOSITIVOS E INICIAR APENAS OS QUE TÊM!
+    @SuppressLint("MissingPermission")
     public void init() {
-        /*
-        sensorManager.registerListener(SensorHelper.this, accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
-        sensorManager.registerListener(SensorHelper.this, temp, SensorManager.SENSOR_DELAY_NORMAL);
-        sensorManager.registerListener(SensorHelper.this, gyroscope, SensorManager.SENSOR_DELAY_NORMAL);
-        */
 
-        //Acelerómetro
+        //sensorManager.registerListener(SensorHelper.this, accelerometer, freq);
+        //sensorManager.registerListener(SensorHelper.this, accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
+        initTime = System.currentTimeMillis();
         sensorManager.registerListener(SensorHelper.this, accelerometer, freq);
+        sensorManager.registerListener(SensorHelper.this, lux, freq);
+        sensorManager.registerListener(SensorHelper.this, temp, freq);
+        //sensorManager.registerListener(SensorHelper.this, prox, freq);
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 100, 5, locationListener);
 
 
-        //sensorManager.registerListener(SensorHelper.this, temp, freq);
-        //sensorManager.registerListener(SensorHelper.this, gyroscope, freq);
+
+        //Log.d("SENSOR_DELAY_NORMAL", ""+SensorManager.SENSOR_DELAY_NORMAL);
+        //Log.d("freq", ""+freq);
     }
 
 
@@ -106,31 +128,40 @@ public class SensorHelper implements SensorEventListener {
         if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
             //Log.d("TAG", "X: " + event.values[0] + "Y: " + event.values[1] + "Z: " + event.values[2]);
             //X
-            Sample accX = new Sample(rideID, "AccX", timeStamp, event.values[0]);
+            Sample accX = new Sample(rideID, "AccX", timeStamp - initTime, event.values[0]);
             samples.add(accX);
             //Y
-            Sample accY = new Sample(rideID, "AccY", timeStamp, event.values[1]);
+            Sample accY = new Sample(rideID, "AccY", timeStamp - initTime, event.values[1]);
             samples.add(accY);
             //Z
-            Sample accZ = new Sample(rideID, "AccZ", timeStamp, event.values[2]);
+            Sample accZ = new Sample(rideID, "AccZ", timeStamp - initTime, event.values[2]);
             samples.add(accZ);
         }
-        if (event.sensor.getType() == Sensor.TYPE_AMBIENT_TEMPERATURE) {
-            Log.d("TAGG", "ºC: " + event.values[0]);
+        if (event.sensor.getType() == Sensor.TYPE_LIGHT) {
+            samples.add(new Sample(rideID, "Lux", timeStamp - initTime, event.values[0]));
+            //Log.d("Lux", "" + event.values[0]);
         }
-        if (event.sensor.getType() == Sensor.TYPE_GYROSCOPE) {
-            Log.d("TAGc GYRO", "X: " + event.values[0] + "Y: " + event.values[1] + "Z: " + event.values[2]);
+        if (event.sensor.getType() == Sensor.TYPE_PROXIMITY) {
+            samples.add(new Sample(rideID, "Prox", timeStamp - initTime, event.values[0]));
+            Log.d("Prox", "" + event.values[0]);
 
         }
+        if (event.sensor.getType() == Sensor.TYPE_AMBIENT_TEMPERATURE) {
+            samples.add(new Sample(rideID, "temp", timeStamp - initTime, event.values[0]));
+        }
+
 
     }
 
 
     public void pause() {
+        pauseTime = System.currentTimeMillis();
+        locationManager.removeUpdates(locationListener);
         sensorManager.unregisterListener(SensorHelper.this);
     }
 
     public void resume() {
+        initTime = initTime + (System.currentTimeMillis() - pauseTime); //andar para a frente o tempo que esteve parado!
         init();
     }
 
@@ -145,6 +176,7 @@ public class SensorHelper implements SensorEventListener {
     }
 
     private void showdialog(Activity activity) {
+
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(activity);
         alertDialog.setTitle("Guardar Corrida?");
         alertDialog.setMessage("Insira o nome da corrida:");
@@ -165,54 +197,56 @@ public class SensorHelper implements SensorEventListener {
                         ride.setDistance((int) locationListener.getDistance());
                         db.updateRide(rideID, ride);
 
-
-                        //TODO - POR A CORRER UM Background Service!
-                        //Intent i = new Intent(context, DatabaseService.class);
-                        //i.putExtra("samples", samples);
-                        //context.startService(i);
-
-
+                        final Handler mHandler = new Handler();
                         Thread thread = new Thread() {
                             @Override
                             public void run() {
                                 long lStartTime = System.nanoTime();
 
                                 db.createSamples(samples);
-
                                 long lEndTime = System.nanoTime();
                                 long output = lEndTime - lStartTime;
+
                                 Log.d("time", " " + output / 1000);
+
+                                mHandler.post(new Runnable(){
+                                    @Override
+                                    public void run(){
+                                        listener.SelectedAValue(3);
+                                    }
+                                });
                             } //1000000000
                         };
-                        thread.start();
 
+                        thread.start();
 
                         listener.SelectedAValue(0);
                         dialog.cancel();
                     }
                 });
 
-        alertDialog.setNegativeButton("NO",
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
 
-                        listener.SelectedAValue(1);
-                        Log.d("Botão", "nao");
-                        dialog.cancel();
-                    }
-                });
-
-        alertDialog.setNeutralButton("Cancel",
+        alertDialog.setNeutralButton("No",
                 new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         //codigo!
-                        listener.SelectedAValue(2);
-                        Log.d("Botão", "cancelar");
+                        listener.SelectedAValue(1);
+                        Log.d("Botão", "nao");
                         dialog.cancel();
+
                     }
                 });
 
+        alertDialog.setNegativeButton("Cancel",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        listener.SelectedAValue(2);
+                        Log.d("Botão", "cancelar");
+                        dialog.cancel();
+
+                    }
+                });
         alertDialog.show();
     }
 

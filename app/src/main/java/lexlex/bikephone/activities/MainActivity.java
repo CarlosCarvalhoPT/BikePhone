@@ -79,6 +79,8 @@ public class MainActivity extends AppCompatActivity implements RegistarFragmentL
         db.createSensor(new Sensor("AccY", "Accelerometer Y axis", "º"));
         db.createSensor(new Sensor("AccZ", "Accelerometer Z axis", "º"));
         db.createSensor(new Sensor("Temp", "Termometer", "ºC"));
+        db.createSensor(new Sensor("Lux", "Luximeter", "SI"));
+        db.createSensor(new Sensor("Prox", "Proximeter", "??"));
 
 
 

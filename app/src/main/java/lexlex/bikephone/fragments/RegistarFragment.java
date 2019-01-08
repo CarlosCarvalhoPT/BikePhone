@@ -176,7 +176,7 @@ public class RegistarFragment extends Fragment {
                     pause.setText(getResources().getString(R.string.pause_button));
                     stop.setEnabled(false);
                 } else {
-                    showToast(v, sh.getDistance()+" " );
+                    //showToast(v, sh.getDistance()+" " );
                     showToast(v, getResources().getString(R.string.longpress));
                 }
             }
@@ -196,7 +196,7 @@ public class RegistarFragment extends Fragment {
                                            case 0:
                                                //YES!
                                                //cronómetro
-
+                                                showToast(v, "A Guardar Dados - Aguarde!");
                                                Log.d("aaa", "YES YES YES");
                                                chronometer.setBase(SystemClock.elapsedRealtime());
                                                timeWhenStopped = 0;
@@ -218,8 +218,10 @@ public class RegistarFragment extends Fragment {
                                                stop.setEnabled(false);
                                                break;
                                            case 2:
-
                                                Log.d("aaa", "CANCEL CANCEL");
+                                               break;
+                                           case 3:
+                                               showToast(v, "Dados Guardados");
                                                break;
                                            default:
                                                break;
