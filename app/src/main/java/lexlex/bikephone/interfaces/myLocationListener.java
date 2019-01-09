@@ -10,11 +10,17 @@ import android.widget.Toast;
 public class myLocationListener implements LocationListener {
     private Location myLocation;
     private float distance;
+    private newLocationListener newLocationListener;
 
 
     public myLocationListener() {
         this.distance = -10;
+        this.newLocationListener = null;
 
+    }
+
+    public void setNewLocationListener(myLocationListener.newLocationListener newLocationListener) {
+        this.newLocationListener = newLocationListener;
     }
 
     public float getDistance() {
@@ -25,7 +31,7 @@ public class myLocationListener implements LocationListener {
     public void onLocationChanged(Location newLocation) {
         Log.d("Latitude", newLocation.getLatitude() + " ");
         Log.d("Longitude", newLocation.getLongitude() + " ");
-
+        this.newLocationListener.onNewLocation(newLocation);
 
         if (distance < 0) { //primeira vez
             myLocation = newLocation;
@@ -49,5 +55,9 @@ public class myLocationListener implements LocationListener {
     @Override
     public void onProviderDisabled(String provider) {
 
+    }
+
+    public interface newLocationListener {
+        public void onNewLocation(Location myLocation);
     }
 }

@@ -39,6 +39,7 @@
         <item>Baixa  (5 Hz)</item>
         <item>Normal  (10 Hz)</item>
         <item>Alta  (20 Hz)</item>
+        <item>Muito Alta  (40 Hz)</item>
     </string-array>
 
 </resources>

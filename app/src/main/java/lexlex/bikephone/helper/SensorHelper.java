@@ -4,17 +4,15 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.location.Location;
 import android.location.LocationManager;
 import android.os.Handler;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
-import android.util.TimingLogger;
-import android.view.ContextThemeWrapper;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 
@@ -22,17 +20,14 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
-import lexlex.bikephone.DatabaseService;
-import lexlex.bikephone.R;
 import lexlex.bikephone.interfaces.ButtonDialogListener;
 import lexlex.bikephone.interfaces.myLocationListener;
 import lexlex.bikephone.models.Ride;
 import lexlex.bikephone.models.Sample;
 
 
-public class SensorHelper implements SensorEventListener {
+public class SensorHelper implements SensorEventListener{
     private Context context;
     private DatabaseHelper db;
     private SensorManager sensorManager;
@@ -61,7 +56,18 @@ public class SensorHelper implements SensorEventListener {
 
         locationManager = (LocationManager) context.getSystemService(context.LOCATION_SERVICE);
         locationListener = new myLocationListener();
-        //TODO -MUDAR PARA O INIT() + Por o Pause!
+        locationListener.setNewLocationListener(
+                new myLocationListener.newLocationListener() {
+                    @Override
+                    public void onNewLocation(Location myLocation) {
+                        Long timeStamp = System.currentTimeMillis();
+                        samples.add(new Sample(rideID, "Lat", timeStamp - initTime, myLocation.getLatitude()) );
+                        samples.add(new Sample(rideID, "Long", timeStamp - initTime, myLocation.getLongitude()) );
+
+                    }
+                }
+        );
+
 
         DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         String rideName = dateFormat.format(new Date());
@@ -152,7 +158,6 @@ public class SensorHelper implements SensorEventListener {
 
 
     }
-
 
     public void pause() {
         pauseTime = System.currentTimeMillis();
@@ -252,9 +257,7 @@ public class SensorHelper implements SensorEventListener {
 
 
     @Override
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {
-
-    }
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {}
 
     public Ride getRide() {
         return this.ride;

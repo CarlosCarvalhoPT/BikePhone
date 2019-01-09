@@ -119,7 +119,6 @@ public class RegistarFragment extends Fragment {
         pause.setEnabled(false);
         stop.setEnabled(false);
 
-        //TODO - Recolher valores dos GPS
 
         start.setOnClickListener(new View.OnClickListener() {
             @Override

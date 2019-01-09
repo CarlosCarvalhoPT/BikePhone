@@ -102,16 +102,16 @@ public class SettingsActivity extends AppCompatActivity implements AdapterView.O
         //TODO - Por frequências mais baixas ou assim....
         switch (pos) {
             case 0:
-                frequence = 200000;
-                // Whatever you want to happen when the first item gets selected
+                frequence = 200000; //5 Hz
                 break;
             case 1:
-                frequence = 100000;
-                // Whatever you want to happen when the second item gets selected
+                frequence = 100000; //10 Hz
                 break;
             case 2:
-                frequence = 50000;
-                // Whatever you want to happen when the thrid item gets selected
+                frequence = 50000; //20 Hz
+                break;
+            case 3:
+                frequence = 25000; //40 Hz
                 break;
 
         }

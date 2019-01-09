@@ -6,7 +6,7 @@ public class Sample implements Serializable{
     private int corridaID;
     private String typeID;
     private long timestamp; //long time= System.currentTimeMillis();
-    private float value;
+    private double value;
 
     public int getCorridaID() {
         return corridaID;
@@ -32,15 +32,15 @@ public class Sample implements Serializable{
         this.timestamp = timestamp;
     }
 
-    public float getValue() {
+    public double getValue() {
         return value;
     }
 
-    public void setValue(int value) {
+    public void setValue(double value) {
         this.value = value;
     }
 
-    public Sample(int corridaID, String typeID, long timestamp, float value) {
+    public Sample(int corridaID, String typeID, long timestamp, double value) {
         this.corridaID = corridaID;
         this.typeID = typeID;
         this.timestamp = timestamp;

@@ -246,7 +246,6 @@ public class DatabaseHelper extends SQLiteOpenHelper implements Serializable {
     }
 
 
-    //TODO
     public Ride getRide(String rideID) {
         return null;
     }
@@ -324,12 +323,10 @@ public class DatabaseHelper extends SQLiteOpenHelper implements Serializable {
 
     }
 
-    //TODO
     public Sample getSample(String rideID, Sensor sensor) {
         return null;
     }
 
-    //TODO - TESTAR
     public ArrayList<Sample> getRideSamples(String rideID) {
         SQLiteDatabase db = this.getReadableDatabase();
         ArrayList<Sample> samples = new ArrayList<>();
